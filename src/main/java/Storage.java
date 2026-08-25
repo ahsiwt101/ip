@@ -1,0 +1,212 @@
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Loads tasks from, and saves tasks to, a file on the hard disk.
+ * <p>
+ * The path is built with {@link Paths#get(String, String...)} from relative
+ * parts, so it stays relative to wherever the program is run and uses whatever
+ * separator the current operating system expects.
+ * <p>
+ * Both a missing file and a missing folder are treated as "nothing saved yet"
+ * rather than as errors, so the chatbot works on a computer that has never run
+ * it before. Lines that do not match the expected format are skipped rather
+ * than allowed to stop the load, and each one is reported through
+ * {@link #getLoadWarnings()}.
+ */
+public class Storage {
+    /** Written between fields; kept in step with {@code Task.FILE_SEPARATOR}. */
+    private static final String SEPARATOR = " | ";
+
+    /** Matches the separator on the way back in, tolerating stray spaces. */
+    private static final String SEPARATOR_PATTERN = "\\s*\\|\\s*";
+
+    /** Type letter marking a line as a todo, and its field count. */
+    private static final String TODO_TYPE = "T";
+    private static final int TODO_FIELDS = 3;
+
+    /** Type letter marking a line as a deadline, and its field count. */
+    private static final String DEADLINE_TYPE = "D";
+    private static final int DEADLINE_FIELDS = 4;
+
+    /** Type letter marking a line as an event, and its field count. */
+    private static final String EVENT_TYPE = "E";
+    private static final int EVENT_FIELDS = 5;
+
+    /** Flag meaning the saved task was done. */
+    private static final String DONE_FLAG = "1";
+
+    /** Flag meaning the saved task was not done. */
+    private static final String NOT_DONE_FLAG = "0";
+
+    /** Where the tasks are kept. */
+    private final Path filePath;
+
+    /** Anything odd noticed during the most recent load, phrased for the user. */
+    private final ArrayList<String> loadWarnings = new ArrayList<>();
+
+    /**
+     * Creates storage backed by a file inside a folder, both relative to the
+     * directory the program is run from.
+     *
+     * @param directory the folder holding the save file, e.g. "data"
+     * @param fileName  the save file's name, e.g. "milo.txt"
+     */
+    public Storage(String directory, String fileName) {
+        this.filePath = Paths.get(directory, fileName);
+    }
+
+    /**
+     * Reads the saved tasks back from disk.
+     * A missing file or folder simply yields an empty list, and any line that
+     * cannot be understood is skipped and recorded as a warning.
+     *
+     * @return the tasks that were readable, in the order they were saved
+     */
+    public ArrayList<Task> load() {
+        loadWarnings.clear();
+        ArrayList<Task> tasks = new ArrayList<>();
+
+        if (!Files.exists(filePath)) {
+            // First run on this computer: there is simply nothing to load.
+            return tasks;
+        }
+
+        List<String> lines;
+        try {
+            lines = Files.readAllLines(filePath);
+        } catch (IOException e) {
+            loadWarnings.add("I couldn't read " + filePath
+                    + ", so I'm starting with an empty list.");
+            return tasks;
+        }
+
+        int skipped = 0;
+        for (String line : lines) {
+            String trimmed = line.trim();
+            if (trimmed.isEmpty()) {
+                continue;
+            }
+            try {
+                tasks.add(parseTask(trimmed));
+            } catch (MiloException e) {
+                skipped++;
+            }
+        }
+
+        if (skipped > 0) {
+            loadWarnings.add("I skipped " + skipped + " line(s) in " + filePath
+                    + " that I couldn't understand. The rest of your list is intact.");
+        }
+        return tasks;
+    }
+
+    /**
+     * Writes the tasks to disk, creating the folder first if it is not there.
+     * The file is rewritten in full each time, so it always mirrors the list.
+     *
+     * @param tasks the tasks to save
+     * @throws MiloException if the file could not be written
+     */
+    public void save(ArrayList<Task> tasks) throws MiloException {
+        try {
+            Path parent = filePath.getParent();
+            if (parent != null) {
+                // Does nothing if the folder is already there.
+                Files.createDirectories(parent);
+            }
+
+            ArrayList<String> lines = new ArrayList<>();
+            for (Task task : tasks) {
+                lines.add(task.toFileFormat());
+            }
+            Files.write(filePath, lines);
+        } catch (IOException e) {
+            throw new MiloException("I couldn't save your tasks to " + filePath
+                    + " (" + e.getMessage() + "). Your list is still fine in memory.");
+        }
+    }
+
+    /**
+     * Returns anything that went wrong during the most recent {@link #load()}.
+     *
+     * @return the warnings, which is empty when the load was clean
+     */
+    public ArrayList<String> getLoadWarnings() {
+        return loadWarnings;
+    }
+
+    /**
+     * Returns where the tasks are being kept, for use in messages.
+     *
+     * @return the save file's path
+     */
+    public Path getFilePath() {
+        return filePath;
+    }
+
+    /**
+     * Rebuilds one task from one line of the save file.
+     * The field count is checked exactly, so a line carrying too few or too
+     * many fields is rejected rather than being guessed at.
+     *
+     * @param line one line of the save file, already trimmed
+     * @return the task that line describes
+     * @throws MiloException if the line does not match the expected format
+     */
+    private static Task parseTask(String line) throws MiloException {
+        String[] fields = line.split(SEPARATOR_PATTERN);
+        if (fields.length < TODO_FIELDS) {
+            throw new MiloException("too few fields");
+        }
+
+        String type = fields[0];
+        String doneFlag = fields[1];
+        String description = fields[2];
+        if (description.isEmpty()) {
+            throw new MiloException("empty description");
+        }
+
+        Task task;
+        switch (type) {
+        case TODO_TYPE:
+            requireFieldCount(fields, TODO_FIELDS);
+            task = new Todo(description);
+            break;
+        case DEADLINE_TYPE:
+            requireFieldCount(fields, DEADLINE_FIELDS);
+            task = new Deadline(description, fields[3]);
+            break;
+        case EVENT_TYPE:
+            requireFieldCount(fields, EVENT_FIELDS);
+            task = new Event(description, fields[3], fields[4]);
+            break;
+        default:
+            throw new MiloException("unknown task type: " + type);
+        }
+
+        if (doneFlag.equals(DONE_FLAG)) {
+            task.markAsDone();
+        } else if (!doneFlag.equals(NOT_DONE_FLAG)) {
+            throw new MiloException("unrecognised done flag: " + doneFlag);
+        }
+        return task;
+    }
+
+    /**
+     * Checks that a line carried exactly the number of fields its type needs.
+     *
+     * @param fields   the fields the line split into
+     * @param expected how many that type of task requires
+     * @throws MiloException if the count does not match
+     */
+    private static void requireFieldCount(String[] fields, int expected) throws MiloException {
+        if (fields.length != expected) {
+            throw new MiloException("expected " + expected + " fields, found " + fields.length);
+        }
+    }
+}
