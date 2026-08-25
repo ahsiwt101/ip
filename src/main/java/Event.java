@@ -30,4 +30,13 @@ public class Event extends Task {
     public String toString() {
         return "[E]" + super.toString() + " (from: " + from + " to: " + to + ")";
     }
+
+    /**
+     * Returns this task as one line of the save file.
+     */
+    @Override
+    public String toFileFormat() {
+        return "E" + FILE_SEPARATOR + super.toFileFormat()
+                + FILE_SEPARATOR + from + FILE_SEPARATOR + to;
+    }
 }
