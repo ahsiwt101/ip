@@ -33,6 +33,11 @@ public class Task {
         this.isDone = true;
     }
 
+    /** Marks this task as not done yet. */
+    public void markAsNotDone() {
+        this.isDone = false;
+    }
+
     /**
      * Returns this task's description.
      *
