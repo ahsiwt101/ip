@@ -50,6 +50,12 @@ public class Milo {
     /** Separates an event's start date from its end date. */
     private static final String TO_MARKER = "/to";
 
+    /** Folder holding the save file, relative to where Milo is run. */
+    private static final String DATA_DIRECTORY = "data";
+
+    /** Name of the save file inside {@value #DATA_DIRECTORY}. */
+    private static final String DATA_FILE = "milo.txt";
+
     /**
      * ASCII-art banner spelling out the chatbot's name.
      * Note there is no trailing newline: the printing helper supplies it.
@@ -68,7 +74,17 @@ public class Milo {
         // number of tasks. It still holds Task references, so a slot may point
         // at a Todo, a Deadline or an Event and toString() picks the matching
         // subclass version at runtime.
-        ArrayList<Task> tasks = new ArrayList<>();
+        Storage storage = new Storage(DATA_DIRECTORY, DATA_FILE);
+        ArrayList<Task> tasks = storage.load();
+
+        // A first run has nothing to report; anything odd about the save file
+        // is worth telling the user before they start adding to it.
+        if (!storage.getLoadWarnings().isEmpty()) {
+            printBlock(storage.getLoadWarnings().toArray(new String[0]));
+        } else if (!tasks.isEmpty()) {
+            printBlock("I loaded " + tasks.size() + " task(s) from last time. "
+                    + "Type list to see them.");
+        }
 
         Scanner scanner = new Scanner(System.in);
         // hasNextLine() guards against the input ending without a "bye",
@@ -93,17 +109,28 @@ public class Milo {
             // MiloException, so all the error reporting happens in one place
             // instead of being threaded back through return values.
             try {
+                // Only the commands that change the list need saving, so
+                // "list" does not rewrite the file for nothing.
+                boolean hasListChanged = false;
+
                 if (keyword.equals(LIST_COMMAND)) {
                     printBlock(formatTasks(tasks));
                 } else if (keyword.equals(MARK_COMMAND) || keyword.equals(UNMARK_COMMAND)) {
                     boolean shouldMarkDone = keyword.equals(MARK_COMMAND);
                     printBlock(setDone(tasks, keyword, arguments, shouldMarkDone));
+                    hasListChanged = true;
                 } else if (keyword.equals(DELETE_COMMAND)) {
                     printBlock(deleteTask(tasks, keyword, arguments));
+                    hasListChanged = true;
                 } else {
                     Task task = createTask(keyword, arguments);
                     tasks.add(task);
                     printBlock(formatAdded(task, tasks.size()));
+                    hasListChanged = true;
+                }
+
+                if (hasListChanged) {
+                    storage.save(tasks);
                 }
             } catch (MiloException e) {
                 printBlock(e.getMessage());
