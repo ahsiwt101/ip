@@ -2,8 +2,8 @@ import java.util.Scanner;
 
 /**
  * Entry point of the Milo chatbot.
- * Milo greets the user, echoes back each command entered, and exits
- * when the user types {@value #EXIT_COMMAND}.
+ * Milo greets the user, stores each piece of text entered, lists the stored
+ * items on request, and exits when the user types {@value #EXIT_COMMAND}.
  */
 public class Milo {
     /** Indentation applied to every line Milo prints. */
@@ -15,6 +15,12 @@ public class Milo {
 
     /** The command that makes Milo exit. */
     private static final String EXIT_COMMAND = "bye";
+
+    /** The command that makes Milo display the stored tasks. */
+    private static final String LIST_COMMAND = "list";
+
+    /** Largest number of tasks Milo can hold, per the Level-2 assumption. */
+    private static final int MAX_TASKS = 100;
 
     /**
      * ASCII-art banner spelling out the chatbot's name.
@@ -29,18 +35,53 @@ public class Milo {
     public static void main(String[] args) {
         printBlock(BANNER, "Hello! I'm Milo.", "What can I do for you?");
 
+        // A fixed-size array plus a running count is enough while the task
+        // limit is known: taskCount is both the number stored and the index
+        // that the next task goes into.
+        String[] tasks = new String[MAX_TASKS];
+        int taskCount = 0;
+
         Scanner scanner = new Scanner(System.in);
         // hasNextLine() guards against the input ending without a "bye",
         // which would otherwise make nextLine() throw.
         while (scanner.hasNextLine()) {
             String command = scanner.nextLine().trim();
+
             if (command.equals(EXIT_COMMAND)) {
                 break;
+            } else if (command.equals(LIST_COMMAND)) {
+                printBlock(formatTasks(tasks, taskCount));
+            } else if (taskCount < MAX_TASKS) {
+                tasks[taskCount] = command;
+                taskCount++;
+                printBlock("added: " + command);
+            } else {
+                printBlock("Sorry, I can only remember " + MAX_TASKS + " tasks.");
             }
-            printBlock(command);
         }
 
         printBlock("Bye. Hope to see you again soon!");
+    }
+
+    /**
+     * Formats the stored tasks as numbered lines, ready to be displayed.
+     *
+     * @param tasks     the array holding the stored tasks
+     * @param taskCount how many entries of the array are actually in use
+     * @return one numbered line per task, or a single explanatory line if
+     *         nothing has been stored yet
+     */
+    private static String[] formatTasks(String[] tasks, int taskCount) {
+        if (taskCount == 0) {
+            return new String[] {"There is nothing in your list yet."};
+        }
+
+        String[] lines = new String[taskCount];
+        for (int i = 0; i < taskCount; i++) {
+            // Tasks are numbered from 1 for the user, but indexed from 0.
+            lines[i] = (i + 1) + ". " + tasks[i];
+        }
+        return lines;
     }
 
     /**
