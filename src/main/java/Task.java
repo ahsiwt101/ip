@@ -3,6 +3,9 @@
  * A task consists of a description and a flag recording whether it is done.
  */
 public class Task {
+    /** Separates the fields of a task when it is written to the save file. */
+    protected static final String FILE_SEPARATOR = " | ";
+
     /** What the user wants to do. */
     protected String description;
 
@@ -36,6 +39,28 @@ public class Task {
     /** Marks this task as not done yet. */
     public void markAsNotDone() {
         this.isDone = false;
+    }
+
+    /**
+     * Returns the completion flag used in the save file, kept separate from
+     * {@link #getStatusIcon()} so the on-screen look can change without
+     * invalidating already-saved files.
+     *
+     * @return "1" if the task is done, "0" otherwise
+     */
+    public String getStatusFlag() {
+        return (isDone ? "1" : "0");
+    }
+
+    /**
+     * Returns this task as one line of the save file. Subclasses prepend
+     * their type letter and append whatever extra fields they carry, the
+     * same way {@link #toString()} is built up.
+     *
+     * @return the shared middle of the line: status flag and description
+     */
+    public String toFileFormat() {
+        return getStatusFlag() + FILE_SEPARATOR + description;
     }
 
     /**

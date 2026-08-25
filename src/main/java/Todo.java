@@ -19,4 +19,12 @@ public class Todo extends Task {
     public String toString() {
         return "[T]" + super.toString();
     }
+
+    /**
+     * Returns this task as one line of the save file.
+     */
+    @Override
+    public String toFileFormat() {
+        return "T" + FILE_SEPARATOR + super.toFileFormat();
+    }
 }

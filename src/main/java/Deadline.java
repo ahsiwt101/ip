@@ -25,4 +25,12 @@ public class Deadline extends Task {
     public String toString() {
         return "[D]" + super.toString() + " (by: " + by + ")";
     }
+
+    /**
+     * Returns this task as one line of the save file.
+     */
+    @Override
+    public String toFileFormat() {
+        return "D" + FILE_SEPARATOR + super.toFileFormat() + FILE_SEPARATOR + by;
+    }
 }
