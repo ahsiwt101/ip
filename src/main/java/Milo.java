@@ -38,7 +38,7 @@ public class Milo {
         // A fixed-size array plus a running count is enough while the task
         // limit is known: taskCount is both the number stored and the index
         // that the next task goes into.
-        String[] tasks = new String[MAX_TASKS];
+        Task[] tasks = new Task[MAX_TASKS];
         int taskCount = 0;
 
         Scanner scanner = new Scanner(System.in);
@@ -52,7 +52,7 @@ public class Milo {
             } else if (command.equals(LIST_COMMAND)) {
                 printBlock(formatTasks(tasks, taskCount));
             } else if (taskCount < MAX_TASKS) {
-                tasks[taskCount] = command;
+                tasks[taskCount] = new Task(command);
                 taskCount++;
                 printBlock("added: " + command);
             } else {
@@ -71,7 +71,7 @@ public class Milo {
      * @return one numbered line per task, or a single explanatory line if
      *         nothing has been stored yet
      */
-    private static String[] formatTasks(String[] tasks, int taskCount) {
+    private static String[] formatTasks(Task[] tasks, int taskCount) {
         if (taskCount == 0) {
             return new String[] {"There is nothing in your list yet."};
         }
@@ -79,7 +79,7 @@ public class Milo {
         String[] lines = new String[taskCount];
         for (int i = 0; i < taskCount; i++) {
             // Tasks are numbered from 1 for the user, but indexed from 0.
-            lines[i] = (i + 1) + ". " + tasks[i];
+            lines[i] = (i + 1) + ". " + tasks[i].getDescription();
         }
         return lines;
     }
