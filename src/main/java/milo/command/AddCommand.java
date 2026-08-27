@@ -1,3 +1,11 @@
+package milo.command;
+
+import milo.exception.MiloException;
+import milo.storage.Storage;
+import milo.task.Task;
+import milo.task.TaskList;
+import milo.ui.Ui;
+
 /**
  * Represents a command that adds an already-built task to the list, such as
  * "todo borrow book" or "deadline return book /by 2019-10-15". The task

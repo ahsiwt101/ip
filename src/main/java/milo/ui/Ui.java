@@ -1,3 +1,5 @@
+package milo.ui;
+
 import java.util.Scanner;
 
 /**

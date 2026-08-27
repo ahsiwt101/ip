@@ -1,3 +1,10 @@
+package milo.command;
+
+import milo.exception.MiloException;
+import milo.storage.Storage;
+import milo.task.TaskList;
+import milo.ui.Ui;
+
 /**
  * Represents one user command that {@link Parser} has already fully
  * interpreted: what kind of command it is, and any data it needs. Carrying

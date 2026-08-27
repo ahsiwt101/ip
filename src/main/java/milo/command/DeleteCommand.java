@@ -1,3 +1,11 @@
+package milo.command;
+
+import milo.exception.MiloException;
+import milo.storage.Storage;
+import milo.task.Task;
+import milo.task.TaskList;
+import milo.ui.Ui;
+
 /**
  * Represents the "delete" command, which removes a task from the list.
  * Tasks after it shift up, so the numbers shown by "list" stay contiguous.

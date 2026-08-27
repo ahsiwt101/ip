@@ -1,3 +1,5 @@
+package milo.exception;
+
 /**
  * Represents an error that Milo can explain to the user, such as a command
  * that is missing information or one that Milo does not recognise.
