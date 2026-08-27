@@ -50,14 +50,16 @@ public class Storage {
     private final ArrayList<String> loadWarnings = new ArrayList<>();
 
     /**
-     * Creates storage backed by a file inside a folder, both relative to the
+     * Creates storage backed by a file at the given path, relative to the
      * directory the program is run from.
      *
-     * @param directory the folder holding the save file, e.g. "data"
-     * @param fileName  the save file's name, e.g. "milo.txt"
+     * @param filePath where to keep the save file, e.g. "data/milo.txt"
      */
-    public Storage(String directory, String fileName) {
-        this.filePath = Paths.get(directory, fileName);
+    public Storage(String filePath) {
+        // Paths.get accepts "/" as a separator on every platform NIO
+        // supports (including Windows), so a forward-slash literal like
+        // "data/milo.txt" still resolves correctly wherever this runs.
+        this.filePath = Paths.get(filePath);
     }
 
     /**

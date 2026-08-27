@@ -1,0 +1,30 @@
+/**
+ * Represents a command that adds an already-built task to the list, such as
+ * "todo borrow book" or "deadline return book /by 2019-10-15". The task
+ * itself is built by {@link Parser}, since deciding what kind of task it is
+ * and reading its fields is about interpreting the command text, not about
+ * the list it ends up in.
+ */
+public class AddCommand extends Command {
+    /** The task to add. */
+    private final Task task;
+
+    /**
+     * Creates a command that will add the given task.
+     *
+     * @param task the task to add
+     */
+    public AddCommand(Task task) {
+        this.task = task;
+    }
+
+    @Override
+    public void execute(TaskList tasks, Ui ui, Storage storage) throws MiloException {
+        tasks.add(task);
+        storage.save(tasks.asArrayList());
+        ui.showResponse(
+                "Got it. I've added this task:",
+                "  " + task,
+                "Now you have " + tasks.size() + " tasks in the list.");
+    }
+}
