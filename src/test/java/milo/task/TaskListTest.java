@@ -120,6 +120,39 @@ class TaskListTest {
     }
 
     @Test
+    void getMatchingDisplayLines_noTasksMatch_returnsPlaceholderMessage() {
+        TaskList tasks = new TaskList();
+        tasks.add(new Todo("read book"));
+        assertArrayEquals(
+                new String[] {"There are no matching tasks in your list."},
+                tasks.getMatchingDisplayLines("essay"));
+    }
+
+    @Test
+    void getMatchingDisplayLines_someTasksMatch_returnsRenumberedFromOne() {
+        TaskList tasks = new TaskList();
+        tasks.add(new Todo("read book"));
+        tasks.add(new Todo("write essay"));
+        tasks.add(new Todo("return book"));
+        assertArrayEquals(
+                new String[] {
+                    "Here are the matching tasks in your list:",
+                    "1.[T][ ] read book",
+                    "2.[T][ ] return book"
+                },
+                tasks.getMatchingDisplayLines("book"));
+    }
+
+    @Test
+    void getMatchingDisplayLines_keywordIsCaseSensitive() {
+        TaskList tasks = new TaskList();
+        tasks.add(new Todo("read Book"));
+        assertArrayEquals(
+                new String[] {"There are no matching tasks in your list."},
+                tasks.getMatchingDisplayLines("book"));
+    }
+
+    @Test
     void asArrayList_reflectsTasksInInsertionOrder() {
         TaskList tasks = new TaskList();
         Task first = new Todo("a");
