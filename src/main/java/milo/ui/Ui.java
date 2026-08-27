@@ -1,5 +1,6 @@
 package milo.ui;
 
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -48,7 +49,7 @@ public class Ui {
      * @param warnings  problems noticed while loading, empty if none
      * @param taskCount how many tasks were loaded
      */
-    public void showLoadStatus(java.util.List<String> warnings, int taskCount) {
+    public void showLoadStatus(List<String> warnings, int taskCount) {
         if (!warnings.isEmpty()) {
             showResponse(warnings.toArray(new String[0]));
         } else if (taskCount > 0) {
