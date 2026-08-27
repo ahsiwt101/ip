@@ -33,3 +33,11 @@ Ensure that Java 25 is used when running the application or build tasks. On macO
 Use lightweight tags unless the user requests an annotated tag.
 When proposing or creating a commit message, include enough detail to explain the rationale for the change.
 Do not commit or push unless explicitly asked.
+
+## Testing
+
+Test coverage target: JUnit tests should cover the top ~50% highest-value methods across the codebase, prioritizing complex, core, or critical business logic (e.g. parsing, validation, persistence, state transitions) over trivial getters, pure I/O, or thin delegation.
+
+Whenever code covered by this target changes — a method's logic, its signature, or its behavior — update the corresponding JUnit tests in the same change, so test coverage does not drift below the 50% target over time. Add tests for any new method that would rank in the top 50% by this same standard.
+
+Tests live under `src/test/java`, mirroring the package of the class under test (e.g. `milo.task.Deadline` → `src/test/java/milo/task/DeadlineTest.java`). Run them with `./gradlew test`.

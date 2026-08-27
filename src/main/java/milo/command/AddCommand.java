@@ -26,6 +26,17 @@ public class AddCommand extends Command {
         this.task = task;
     }
 
+    /**
+     * Returns the task this command will add.
+     * Lets a caller (notably a test verifying what {@link Parser} built)
+     * inspect the task without triggering {@link #execute}'s side effects.
+     *
+     * @return the task this command carries
+     */
+    public Task getTask() {
+        return task;
+    }
+
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) throws MiloException {
         tasks.add(task);
