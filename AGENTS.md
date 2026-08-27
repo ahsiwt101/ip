@@ -41,3 +41,7 @@ Test coverage target: JUnit tests should cover the top ~50% highest-value method
 Whenever code covered by this target changes — a method's logic, its signature, or its behavior — update the corresponding JUnit tests in the same change, so test coverage does not drift below the 50% target over time. Add tests for any new method that would rank in the top 50% by this same standard.
 
 Tests live under `src/test/java`, mirroring the package of the class under test (e.g. `milo.task.Deadline` → `src/test/java/milo/task/DeadlineTest.java`). Run them with `./gradlew test`.
+
+## Coding standard
+
+All Java code in this project (`src/main/java` and `src/test/java`) must follow the `seedu-java-coding-standard` skill, which codifies the SE-EDU intermediate Java conventions (naming, layout, imports, Javadoc): https://se-education.org/guides/conventions/java/intermediate.html. Load that skill before writing or reviewing Java code, and bring existing code into compliance when you touch it.
