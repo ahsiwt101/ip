@@ -52,13 +52,8 @@ public class Milo {
         Ui ui = new Ui();
         ui.showWelcome();
 
-        // An ArrayList grows as needed, so there is no fixed capacity to run
-        // out of and no separate counter to keep in step: size() is always the
-        // number of tasks. It still holds Task references, so a slot may point
-        // at a Todo, a Deadline or an Event and toString() picks the matching
-        // subclass version at runtime.
         Storage storage = new Storage(DATA_DIRECTORY, DATA_FILE);
-        ArrayList<Task> tasks = storage.load();
+        TaskList tasks = new TaskList(storage.load());
         ui.showLoadStatus(storage.getLoadWarnings(), tasks.size());
 
         // hasNextCommand() guards against the input ending without a "bye",
@@ -88,7 +83,7 @@ public class Milo {
                 boolean hasListChanged = false;
 
                 if (keyword.equals(LIST_COMMAND)) {
-                    ui.showResponse(formatTasks(tasks));
+                    ui.showResponse(tasks.getDisplayLines());
                 } else if (keyword.equals(MARK_COMMAND) || keyword.equals(UNMARK_COMMAND)) {
                     boolean shouldMarkDone = keyword.equals(MARK_COMMAND);
                     ui.showResponse(setDone(tasks, keyword, arguments, shouldMarkDone));
@@ -104,7 +99,7 @@ public class Milo {
                 }
 
                 if (hasListChanged) {
-                    storage.save(tasks);
+                    storage.save(tasks.asArrayList());
                 }
             } catch (MiloException e) {
                 ui.showError(e.getMessage());
@@ -234,7 +229,7 @@ public class Milo {
      * @return the position of that task in the list, counting from 0
      * @throws MiloException if the list is empty, or no valid number was given
      */
-    private static int parseTaskIndex(ArrayList<Task> tasks, String keyword, String arguments)
+    private static int parseTaskIndex(TaskList tasks, String keyword, String arguments)
             throws MiloException {
         if (tasks.isEmpty()) {
             throw new MiloException("There is nothing in your list to " + keyword + " yet. "
@@ -271,7 +266,7 @@ public class Milo {
      * @return the lines of the confirmation block
      * @throws MiloException if no valid task number was given
      */
-    private static String[] setDone(ArrayList<Task> tasks, String keyword, String arguments,
+    private static String[] setDone(TaskList tasks, String keyword, String arguments,
             boolean shouldMarkDone) throws MiloException {
         Task task = tasks.get(parseTaskIndex(tasks, keyword, arguments));
 
@@ -294,11 +289,11 @@ public class Milo {
      * @return the lines of the confirmation block
      * @throws MiloException if no valid task number was given
      */
-    private static String[] deleteTask(ArrayList<Task> tasks, String keyword, String arguments)
+    private static String[] deleteTask(TaskList tasks, String keyword, String arguments)
             throws MiloException {
-        // remove() hands back the task it took out, so it can be shown to the
+        // delete() hands back the task it took out, so it can be shown to the
         // user without having to fetch it separately beforehand.
-        Task removed = tasks.remove(parseTaskIndex(tasks, keyword, arguments));
+        Task removed = tasks.delete(parseTaskIndex(tasks, keyword, arguments));
 
         return new String[] {
             "Noted. I've removed this task:",
@@ -320,26 +315,5 @@ public class Milo {
             "  " + task,
             "Now you have " + taskCount + " tasks in the list."
         };
-    }
-
-    /**
-     * Formats the stored tasks as numbered lines, ready to be displayed.
-     *
-     * @param tasks the stored tasks
-     * @return the lines of the list block, or a single explanatory line if
-     *         nothing has been stored yet
-     */
-    private static String[] formatTasks(ArrayList<Task> tasks) {
-        if (tasks.isEmpty()) {
-            return new String[] {"There is nothing in your list yet."};
-        }
-
-        String[] lines = new String[tasks.size() + 1];
-        lines[0] = "Here are the tasks in your list:";
-        for (int i = 0; i < tasks.size(); i++) {
-            // Tasks are numbered from 1 for the user, but indexed from 0.
-            lines[i + 1] = (i + 1) + "." + tasks.get(i);
-        }
-        return lines;
     }
 }
