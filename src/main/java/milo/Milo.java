@@ -67,6 +67,12 @@ public class Milo {
         ui.showGoodbye();
     }
 
+    /**
+     * Starts Milo, reading its saved tasks from and writing them back to
+     * {@value #DATA_FILE_PATH}.
+     *
+     * @param args unused; Milo takes no command-line arguments
+     */
     public static void main(String[] args) {
         new Milo(DATA_FILE_PATH).run();
     }
