@@ -34,6 +34,8 @@ Use lightweight tags unless the user requests an annotated tag.
 When proposing or creating a commit message, include enough detail to explain the rationale for the change.
 Do not commit or push unless explicitly asked.
 
+All commit messages and branch names must follow the `seedu-git-standard` skill, which codifies the SE-EDU git conventions: https://se-education.org/guides/conventions/git.html. Load that skill before drafting a commit message or naming a branch. In particular, keep unrelated changes (e.g. application code vs. agent/process files) in separate commits rather than bundling them.
+
 ## Testing
 
 Test coverage target: JUnit tests should cover the top ~50% highest-value methods across the codebase, prioritizing complex, core, or critical business logic (e.g. parsing, validation, persistence, state transitions) over trivial getters, pure I/O, or thin delegation.
