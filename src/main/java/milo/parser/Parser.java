@@ -4,6 +4,7 @@ import milo.command.AddCommand;
 import milo.command.Command;
 import milo.command.DeleteCommand;
 import milo.command.ExitCommand;
+import milo.command.FindCommand;
 import milo.command.ListCommand;
 import milo.command.MarkCommand;
 import milo.exception.MiloException;
@@ -32,6 +33,9 @@ public class Parser {
 
     /** The command that removes a task from the list. */
     private static final String DELETE_COMMAND = "delete";
+
+    /** The command that searches for tasks by a keyword in their description. */
+    private static final String FIND_COMMAND = "find";
 
     /** The command that adds a task with no date attached. */
     private static final String TODO_COMMAND = "todo";
@@ -82,6 +86,12 @@ public class Parser {
         case DELETE_COMMAND:
             return new DeleteCommand(arguments);
 
+        case FIND_COMMAND:
+            if (arguments.isEmpty()) {
+                throw new MiloException("Tell me what to search for. Try: find book");
+            }
+            return new FindCommand(arguments);
+
         case TODO_COMMAND:
         case DEADLINE_COMMAND:
         case EVENT_COMMAND:
@@ -89,7 +99,7 @@ public class Parser {
 
         default:
             throw new MiloException("I don't know what \"" + keyword + "\" means. "
-                    + "I understand: todo, deadline, event, list, mark, unmark, "
+                    + "I understand: todo, deadline, event, list, find, mark, unmark, "
                     + "delete and bye.");
         }
     }

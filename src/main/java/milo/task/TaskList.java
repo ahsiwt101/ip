@@ -111,6 +111,37 @@ public class TaskList {
     }
 
     /**
+     * Renders the tasks whose description contains the given keyword, as
+     * numbered lines ready to be displayed. Matches are renumbered from 1
+     * within the result, rather than keeping their position in the full
+     * list, since the user searching has no way to know what those original
+     * numbers were.
+     *
+     * @param keyword the text to search for in each task's description
+     * @return the lines of the matching-tasks block, or a single explanatory
+     *         line if nothing matched
+     */
+    public String[] getMatchingDisplayLines(String keyword) {
+        ArrayList<Task> matches = new ArrayList<>();
+        for (Task task : tasks) {
+            if (task.getDescription().contains(keyword)) {
+                matches.add(task);
+            }
+        }
+
+        if (matches.isEmpty()) {
+            return new String[] {"There are no matching tasks in your list."};
+        }
+
+        String[] lines = new String[matches.size() + 1];
+        lines[0] = "Here are the matching tasks in your list:";
+        for (int i = 0; i < matches.size(); i++) {
+            lines[i + 1] = (i + 1) + "." + matches.get(i);
+        }
+        return lines;
+    }
+
+    /**
      * Checks that a position refers to an actual task.
      * A defensive check: normal use always validates the number first (see
      * {@code Milo.parseTaskIndex}), so this only guards against misuse.

@@ -14,6 +14,7 @@ import milo.command.AddCommand;
 import milo.command.Command;
 import milo.command.DeleteCommand;
 import milo.command.ExitCommand;
+import milo.command.FindCommand;
 import milo.command.ListCommand;
 import milo.command.MarkCommand;
 import milo.exception.MiloException;
@@ -54,6 +55,18 @@ class ParserTest {
     @Test
     void parse_delete_returnsDeleteCommand() throws MiloException {
         assertInstanceOf(DeleteCommand.class, Parser.parse("delete 1"));
+    }
+
+    @Test
+    void parse_findWithKeyword_returnsFindCommandCarryingKeyword() throws MiloException {
+        Command command = Parser.parse("find book");
+        assertInstanceOf(FindCommand.class, command);
+        assertEquals("book", ((FindCommand) command).getKeyword());
+    }
+
+    @Test
+    void parse_findWithoutKeyword_throwsMiloException() {
+        assertThrows(MiloException.class, () -> Parser.parse("find"));
     }
 
     @Test
