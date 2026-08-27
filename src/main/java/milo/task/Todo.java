@@ -1,3 +1,5 @@
+package milo.task;
+
 /**
  * Represents a task with no date or time attached to it,
  * for example "visit new theme park".

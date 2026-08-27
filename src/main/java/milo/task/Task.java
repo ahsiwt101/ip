@@ -1,3 +1,5 @@
+package milo.task;
+
 /**
  * Represents a single task that Milo keeps track of.
  * A task consists of a description and a flag recording whether it is done.

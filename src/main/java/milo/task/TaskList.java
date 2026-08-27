@@ -1,4 +1,8 @@
+package milo.task;
+
 import java.util.ArrayList;
+
+import milo.exception.MiloException;
 
 /**
  * Contains the task list and the operations that act on it: adding,

@@ -1,3 +1,5 @@
+package milo.task;
+
 /**
  * Represents a task that starts at a specific date/time and ends at another,
  * for example "team project meeting 2/10/2019 2-4pm".

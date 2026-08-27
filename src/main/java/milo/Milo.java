@@ -1,3 +1,12 @@
+package milo;
+
+import milo.command.Command;
+import milo.exception.MiloException;
+import milo.parser.Parser;
+import milo.storage.Storage;
+import milo.task.TaskList;
+import milo.ui.Ui;
+
 /**
  * Entry point of the Milo chatbot.
  * Milo wires together the {@link Ui}, {@link Storage} and {@link TaskList}

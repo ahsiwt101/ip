@@ -1,3 +1,9 @@
+package milo.command;
+
+import milo.storage.Storage;
+import milo.task.TaskList;
+import milo.ui.Ui;
+
 /** Represents the "bye" command, which ends the session. */
 public class ExitCommand extends Command {
     /**
