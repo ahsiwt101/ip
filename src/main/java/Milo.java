@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Scanner;
 
 /**
  * Entry point of the Milo chatbot.
@@ -10,13 +9,6 @@ import java.util.Scanner;
  * rather than being allowed to crash the program.
  */
 public class Milo {
-    /** Indentation applied to every line Milo prints. */
-    private static final String INDENT = "    ";
-
-    /** Horizontal line used to separate blocks of Milo's output. */
-    private static final String DIVIDER =
-            INDENT + "____________________________________________________________";
-
     /** The command that makes Milo exit. */
     private static final String EXIT_COMMAND = "bye";
 
@@ -56,18 +48,9 @@ public class Milo {
     /** Name of the save file inside {@value #DATA_DIRECTORY}. */
     private static final String DATA_FILE = "milo.txt";
 
-    /**
-     * ASCII-art banner spelling out the chatbot's name.
-     * Note there is no trailing newline: the printing helper supplies it.
-     */
-    private static final String BANNER = " __  __  _  _         \n"
-            + "|  \\/  |(_)| |  ___  \n"
-            + "| |\\/| || || | / _ \\ \n"
-            + "| |  | || || || (_) |\n"
-            + "|_|  |_||_||_| \\___/ ";
-
     public static void main(String[] args) {
-        printBlock(BANNER, "Hello! I'm Milo.", "What can I do for you?");
+        Ui ui = new Ui();
+        ui.showWelcome();
 
         // An ArrayList grows as needed, so there is no fixed capacity to run
         // out of and no separate counter to keep in step: size() is always the
@@ -76,21 +59,12 @@ public class Milo {
         // subclass version at runtime.
         Storage storage = new Storage(DATA_DIRECTORY, DATA_FILE);
         ArrayList<Task> tasks = storage.load();
+        ui.showLoadStatus(storage.getLoadWarnings(), tasks.size());
 
-        // A first run has nothing to report; anything odd about the save file
-        // is worth telling the user before they start adding to it.
-        if (!storage.getLoadWarnings().isEmpty()) {
-            printBlock(storage.getLoadWarnings().toArray(new String[0]));
-        } else if (!tasks.isEmpty()) {
-            printBlock("I loaded " + tasks.size() + " task(s) from last time. "
-                    + "Type list to see them.");
-        }
-
-        Scanner scanner = new Scanner(System.in);
-        // hasNextLine() guards against the input ending without a "bye",
-        // which would otherwise make nextLine() throw.
-        while (scanner.hasNextLine()) {
-            String command = scanner.nextLine().trim();
+        // hasNextCommand() guards against the input ending without a "bye",
+        // which would otherwise make readCommand() throw.
+        while (ui.hasNextCommand()) {
+            String command = ui.readCommand();
             if (command.isEmpty()) {
                 continue;
             }
@@ -114,18 +88,18 @@ public class Milo {
                 boolean hasListChanged = false;
 
                 if (keyword.equals(LIST_COMMAND)) {
-                    printBlock(formatTasks(tasks));
+                    ui.showResponse(formatTasks(tasks));
                 } else if (keyword.equals(MARK_COMMAND) || keyword.equals(UNMARK_COMMAND)) {
                     boolean shouldMarkDone = keyword.equals(MARK_COMMAND);
-                    printBlock(setDone(tasks, keyword, arguments, shouldMarkDone));
+                    ui.showResponse(setDone(tasks, keyword, arguments, shouldMarkDone));
                     hasListChanged = true;
                 } else if (keyword.equals(DELETE_COMMAND)) {
-                    printBlock(deleteTask(tasks, keyword, arguments));
+                    ui.showResponse(deleteTask(tasks, keyword, arguments));
                     hasListChanged = true;
                 } else {
                     Task task = createTask(keyword, arguments);
                     tasks.add(task);
-                    printBlock(formatAdded(task, tasks.size()));
+                    ui.showResponse(formatAdded(task, tasks.size()));
                     hasListChanged = true;
                 }
 
@@ -133,11 +107,11 @@ public class Milo {
                     storage.save(tasks);
                 }
             } catch (MiloException e) {
-                printBlock(e.getMessage());
+                ui.showError(e.getMessage());
             }
         }
 
-        printBlock("Bye. Hope to see you again soon!");
+        ui.showGoodbye();
     }
 
     /**
@@ -367,25 +341,5 @@ public class Milo {
             lines[i + 1] = (i + 1) + "." + tasks.get(i);
         }
         return lines;
-    }
-
-    /**
-     * Prints the given lines as one block: framed by divider lines above and
-     * below, indented to match Milo's output format, and followed by a blank
-     * line that separates it from whatever the user types next.
-     * A line that itself contains newlines (such as the banner) is split so
-     * that every physical line receives the same indentation.
-     *
-     * @param lines the lines of text to display inside the block
-     */
-    private static void printBlock(String... lines) {
-        System.out.println(DIVIDER);
-        for (String line : lines) {
-            for (String physicalLine : line.split("\n")) {
-                System.out.println(INDENT + " " + physicalLine);
-            }
-        }
-        System.out.println(DIVIDER);
-        System.out.println();
     }
 }
