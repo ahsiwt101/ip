@@ -53,7 +53,7 @@ public class MainWindow extends AnchorPane {
      */
     public void setMilo(Milo milo) {
         this.milo = milo;
-        dialogContainer.getChildren().add(DialogBox.getMiloDialog(milo.getWelcomeMessage(), miloImage));
+        addDialog(DialogBox.getMiloDialog(milo.getWelcomeMessage(), miloImage));
     }
 
     /**
@@ -68,9 +68,8 @@ public class MainWindow extends AnchorPane {
         }
 
         String response = milo.getResponse(input);
-        dialogContainer.getChildren().addAll(
-                DialogBox.getUserDialog(input, userImage),
-                DialogBox.getMiloDialog(response, miloImage));
+        addDialog(DialogBox.getUserDialog(input, userImage));
+        addDialog(DialogBox.getMiloDialog(response, miloImage));
         userInput.clear();
 
         if (milo.isExit()) {
@@ -78,5 +77,17 @@ public class MainWindow extends AnchorPane {
             delay.setOnFinished(event -> Platform.exit());
             delay.play();
         }
+    }
+
+    /**
+     * Adds a dialog box to the history, tying its wrapping width to the
+     * history's current width so it keeps wrapping correctly if the window
+     * is resized later.
+     *
+     * @param dialogBox the dialog box to add
+     */
+    private void addDialog(DialogBox dialogBox) {
+        dialogBox.bindMaxWidthTo(dialogContainer.widthProperty());
+        dialogContainer.getChildren().add(dialogBox);
     }
 }

@@ -1,11 +1,14 @@
 package milo.gui;
 
 import java.io.IOException;
-import java.util.Collections;
 
+import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -43,7 +46,26 @@ public class DialogBox extends HBox {
      */
     private void flip() {
         setAlignment(Pos.TOP_LEFT);
-        Collections.reverse(getChildren());
+        // Collections.reverse() briefly puts the same node at two positions
+        // mid-swap, which Parent's children list rejects as a duplicate
+        // child. Reversing a plain copy first, then replacing the children
+        // in one atomic setAll(), avoids that intermediate state.
+        ObservableList<Node> reversed = FXCollections.observableArrayList(getChildren());
+        FXCollections.reverse(reversed);
+        getChildren().setAll(reversed);
+    }
+
+    /**
+     * Ties this bubble's maximum width to a fraction of the given width, so
+     * long messages keep wrapping correctly as the window is resized
+     * instead of being stuck at whatever width the window happened to be
+     * when the message was created.
+     *
+     * @param containerWidth the width to track, typically the dialog
+     *                        history's own width
+     */
+    public void bindMaxWidthTo(ReadOnlyDoubleProperty containerWidth) {
+        dialog.maxWidthProperty().bind(containerWidth.multiply(0.7));
     }
 
     /**
@@ -54,7 +76,9 @@ public class DialogBox extends HBox {
      * @return the dialog box, aligned to the right
      */
     public static DialogBox getUserDialog(String text, Image img) {
-        return new DialogBox(text, img);
+        var db = new DialogBox(text, img);
+        db.dialog.getStyleClass().add("user-bubble");
+        return db;
     }
 
     /**
@@ -66,6 +90,7 @@ public class DialogBox extends HBox {
      */
     public static DialogBox getMiloDialog(String text, Image img) {
         var db = new DialogBox(text, img);
+        db.dialog.getStyleClass().add("milo-bubble");
         db.flip();
         return db;
     }
