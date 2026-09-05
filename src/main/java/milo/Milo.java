@@ -27,6 +27,9 @@ public class Milo {
     /** The tasks currently in memory. */
     private final TaskList tasks;
 
+    /** Whether the most recent {@link #getResponse} call was "bye". */
+    private boolean isExit = false;
+
     /**
      * Creates Milo, loading whatever tasks were saved from a previous run.
      *
@@ -36,6 +39,11 @@ public class Milo {
         this.ui = new Ui();
         this.storage = new Storage(filePath);
         this.tasks = new TaskList(storage.load());
+    }
+
+    /** Creates Milo, saving to and loading from the default save location. */
+    public Milo() {
+        this(DATA_FILE_PATH);
     }
 
     /** Greets the user, then reads and carries out commands until told to stop. */
@@ -68,12 +76,60 @@ public class Milo {
     }
 
     /**
+     * Returns the message Milo opens a new session with: its greeting, plus
+     * anything worth reporting about loading previously saved tasks. Meant
+     * to be shown once when a new interface (such as the GUI) starts,
+     * before the user has typed anything.
+     *
+     * @return the opening message
+     */
+    public String getWelcomeMessage() {
+        String greeting = ui.getGreeting();
+        String loadStatus = ui.showLoadStatus(storage.getLoadWarnings(), tasks.size());
+        return loadStatus.isEmpty() ? greeting : greeting + "\n" + loadStatus;
+    }
+
+    /**
+     * Parses and carries out one command, returning what Milo says back.
+     * Used by interfaces (such as the GUI) that ask for one response at a
+     * time, rather than driving the whole read-parse-execute loop the way
+     * {@link #run} does.
+     *
+     * @param input one line of user input
+     * @return Milo's reply, ready to be shown to the user
+     */
+    public String getResponse(String input) {
+        try {
+            Command command = Parser.parse(input);
+            command.execute(tasks, ui, storage);
+            isExit = command.isExit();
+            if (isExit) {
+                ui.showGoodbye();
+            }
+            return ui.getLastResponse();
+        } catch (MiloException e) {
+            isExit = false;
+            return e.getMessage();
+        }
+    }
+
+    /**
+     * Returns whether the most recent {@link #getResponse} call was "bye",
+     * i.e. whether the session should now end.
+     *
+     * @return true if Milo is done
+     */
+    public boolean isExit() {
+        return isExit;
+    }
+
+    /**
      * Starts Milo, reading its saved tasks from and writing them back to
      * {@value #DATA_FILE_PATH}.
      *
      * @param args unused; Milo takes no command-line arguments
      */
     public static void main(String[] args) {
-        new Milo(DATA_FILE_PATH).run();
+        new Milo().run();
     }
 }

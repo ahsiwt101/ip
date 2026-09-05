@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="milo.gui.MainWindow"
+            prefHeight="600.0" prefWidth="420.0" minHeight="450.0" minWidth="360.0"
+            stylesheets="@main.css">
+    <children>
+        <ScrollPane fx:id="scrollPane" hbarPolicy="NEVER" vbarPolicy="ALWAYS" fitToWidth="true"
+                    AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                    AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="60.0">
+            <content>
+                <VBox fx:id="dialogContainer" spacing="12.0">
+                    <padding>
+                        <Insets top="12.0" bottom="12.0" left="12.0" right="12.0" />
+                    </padding>
+                </VBox>
+            </content>
+        </ScrollPane>
+        <HBox spacing="10.0" alignment="CENTER"
+              AnchorPane.leftAnchor="12.0" AnchorPane.rightAnchor="12.0" AnchorPane.bottomAnchor="12.0">
+            <children>
+                <TextField fx:id="userInput" promptText="Type a command..." onAction="#handleUserInput"
+                           HBox.hgrow="ALWAYS" />
+                <Button fx:id="sendButton" text="Send" prefWidth="70.0" onAction="#handleUserInput" />
+            </children>
+        </HBox>
+    </children>
+</AnchorPane>
