@@ -47,3 +47,5 @@ Tests live under `src/test/java`, mirroring the package of the class under test 
 ## Coding standard
 
 All Java code in this project (`src/main/java` and `src/test/java`) must follow the `seedu-java-coding-standard` skill, which codifies the SE-EDU intermediate Java conventions (naming, layout, imports, Javadoc): https://se-education.org/guides/conventions/java/intermediate.html. Load that skill before writing or reviewing Java code, and bring existing code into compliance when you touch it.
+
+The `checkstyle` Gradle plugin enforces this standard mechanically, configured via `config/checkstyle/checkstyle.xml` and `config/checkstyle/suppressions.xml`. Run it with `./gradlew checkstyleMain checkstyleTest`, and run it after any change to main or test source to catch violations before they're committed.
