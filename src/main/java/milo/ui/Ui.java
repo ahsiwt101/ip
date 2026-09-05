@@ -27,12 +27,28 @@ public class Ui {
             + "| |  | || || || (_) |\n"
             + "|_|  |_||_||_| \\___/ ";
 
+    /** The plain greeting shown alongside the banner. */
+    private static final String GREETING = "Hello! I'm Milo.\nWhat can I do for you?";
+
     /** Where user input is read from. */
     private final Scanner scanner = new Scanner(System.in);
 
+    /** The plain text (no dividers or indentation) of the most recent {@link #showResponse}. */
+    private String lastResponse = "";
+
     /** Prints the banner and the opening greeting. */
     public void showWelcome() {
-        showResponse(BANNER, "Hello! I'm Milo.", "What can I do for you?");
+        showResponse(BANNER, GREETING);
+    }
+
+    /**
+     * Returns the opening greeting without the banner, for an interface
+     * (such as the GUI) that doesn't display console-style ASCII art.
+     *
+     * @return the greeting text
+     */
+    public String getGreeting() {
+        return GREETING;
     }
 
     /** Prints the closing message shown when the user exits. */
@@ -48,14 +64,18 @@ public class Ui {
      *
      * @param warnings  problems noticed while loading, empty if none
      * @param taskCount how many tasks were loaded
+     * @return what was shown, or an empty string if there was nothing to report
      */
-    public void showLoadStatus(List<String> warnings, int taskCount) {
+    public String showLoadStatus(List<String> warnings, int taskCount) {
         if (!warnings.isEmpty()) {
             showResponse(warnings.toArray(new String[0]));
         } else if (taskCount > 0) {
             showResponse("I loaded " + taskCount + " task(s) from last time. "
                     + "Type list to see them.");
+        } else {
+            return "";
         }
+        return lastResponse;
     }
 
     /**
@@ -98,6 +118,8 @@ public class Ui {
      * @param lines the lines of text to display inside the block
      */
     public void showResponse(String... lines) {
+        lastResponse = String.join("\n", lines);
+
         System.out.println(DIVIDER);
         for (String line : lines) {
             for (String physicalLine : line.split("\n")) {
@@ -106,5 +128,18 @@ public class Ui {
         }
         System.out.println(DIVIDER);
         System.out.println();
+    }
+
+    /**
+     * Returns the plain text of the most recent {@link #showResponse} call,
+     * without the console-only dividers and indentation. Meant for an
+     * interface (such as the GUI) that renders a response itself instead of
+     * relying on this class's console formatting.
+     *
+     * @return the plain text of the last response, or an empty string if
+     *         nothing has been shown yet
+     */
+    public String getLastResponse() {
+        return lastResponse;
     }
 }
