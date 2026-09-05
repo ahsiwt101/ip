@@ -44,15 +44,15 @@ class DeleteCommandTest {
     void execute_invalidNumber_throwsAndLeavesListUnchanged() {
         TaskList tasks = new TaskList();
         tasks.add(new Todo("a"));
-        assertThrows(MiloException.class,
-                () -> new DeleteCommand("xyz").execute(tasks, new Ui(), newStorage()));
+        assertThrows(MiloException.class, () ->
+                new DeleteCommand("xyz").execute(tasks, new Ui(), newStorage()));
         assertEquals(1, tasks.size());
     }
 
     @Test
     void execute_onEmptyList_throwsMiloException() {
         TaskList tasks = new TaskList();
-        assertThrows(MiloException.class,
-                () -> new DeleteCommand("1").execute(tasks, new Ui(), newStorage()));
+        assertThrows(MiloException.class, () ->
+                new DeleteCommand("1").execute(tasks, new Ui(), newStorage()));
     }
 }

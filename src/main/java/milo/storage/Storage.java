@@ -183,20 +183,20 @@ public class Storage {
 
         Task task;
         switch (type) {
-        case TODO_TYPE:
-            requireFieldCount(fields, TODO_FIELDS);
-            task = new Todo(description);
-            break;
-        case DEADLINE_TYPE:
-            requireFieldCount(fields, DEADLINE_FIELDS);
-            task = new Deadline(description, fields[3]);
-            break;
-        case EVENT_TYPE:
-            requireFieldCount(fields, EVENT_FIELDS);
-            task = new Event(description, fields[3], fields[4]);
-            break;
-        default:
-            throw new MiloException("unknown task type: " + type);
+            case TODO_TYPE:
+                requireFieldCount(fields, TODO_FIELDS);
+                task = new Todo(description);
+                break;
+            case DEADLINE_TYPE:
+                requireFieldCount(fields, DEADLINE_FIELDS);
+                task = new Deadline(description, fields[3]);
+                break;
+            case EVENT_TYPE:
+                requireFieldCount(fields, EVENT_FIELDS);
+                task = new Event(description, fields[3], fields[4]);
+                break;
+            default:
+                throw new MiloException("unknown task type: " + type);
         }
 
         if (doneFlag.equals(DONE_FLAG)) {

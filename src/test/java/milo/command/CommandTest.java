@@ -18,48 +18,48 @@ class CommandTest {
     @Test
     void resolveTaskIndex_emptyList_throwsMiloException() {
         TaskList tasks = new TaskList();
-        assertThrows(MiloException.class,
-                () -> Command.resolveTaskIndex(tasks, "mark", "1"));
+        assertThrows(MiloException.class, () ->
+                Command.resolveTaskIndex(tasks, "mark", "1"));
     }
 
     @Test
     void resolveTaskIndex_nonNumericArgument_throwsMiloException() {
         TaskList tasks = new TaskList();
         tasks.add(new Todo("read book"));
-        assertThrows(MiloException.class,
-                () -> Command.resolveTaskIndex(tasks, "mark", "abc"));
+        assertThrows(MiloException.class, () ->
+                Command.resolveTaskIndex(tasks, "mark", "abc"));
     }
 
     @Test
     void resolveTaskIndex_missingArgument_throwsMiloException() {
         TaskList tasks = new TaskList();
         tasks.add(new Todo("read book"));
-        assertThrows(MiloException.class,
-                () -> Command.resolveTaskIndex(tasks, "mark", ""));
+        assertThrows(MiloException.class, () ->
+                Command.resolveTaskIndex(tasks, "mark", ""));
     }
 
     @Test
     void resolveTaskIndex_zero_throwsMiloException() {
         TaskList tasks = new TaskList();
         tasks.add(new Todo("read book"));
-        assertThrows(MiloException.class,
-                () -> Command.resolveTaskIndex(tasks, "mark", "0"));
+        assertThrows(MiloException.class, () ->
+                Command.resolveTaskIndex(tasks, "mark", "0"));
     }
 
     @Test
     void resolveTaskIndex_negative_throwsMiloException() {
         TaskList tasks = new TaskList();
         tasks.add(new Todo("read book"));
-        assertThrows(MiloException.class,
-                () -> Command.resolveTaskIndex(tasks, "mark", "-1"));
+        assertThrows(MiloException.class, () ->
+                Command.resolveTaskIndex(tasks, "mark", "-1"));
     }
 
     @Test
     void resolveTaskIndex_oneMoreThanSize_throwsMiloException() {
         TaskList tasks = new TaskList();
         tasks.add(new Todo("read book"));
-        assertThrows(MiloException.class,
-                () -> Command.resolveTaskIndex(tasks, "mark", "2"));
+        assertThrows(MiloException.class, () ->
+                Command.resolveTaskIndex(tasks, "mark", "2"));
     }
 
     @Test
