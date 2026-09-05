@@ -45,8 +45,8 @@ class MarkCommandTest {
     void execute_invalidNumber_throwsAndLeavesListUnchanged() {
         TaskList tasks = new TaskList();
         tasks.add(new Todo("read book"));
-        assertThrows(MiloException.class,
-                () -> new MarkCommand("abc", true).execute(tasks, new Ui(), newStorage()));
+        assertThrows(MiloException.class, () ->
+                new MarkCommand("abc", true).execute(tasks, new Ui(), newStorage()));
         assertEquals("[T][ ] read book", tasks.asArrayList().get(0).toString());
     }
 
@@ -54,8 +54,8 @@ class MarkCommandTest {
     void execute_outOfRangeNumber_throwsMiloException() {
         TaskList tasks = new TaskList();
         tasks.add(new Todo("read book"));
-        assertThrows(MiloException.class,
-                () -> new MarkCommand("5", true).execute(tasks, new Ui(), newStorage()));
+        assertThrows(MiloException.class, () ->
+                new MarkCommand("5", true).execute(tasks, new Ui(), newStorage()));
     }
 
     @Test

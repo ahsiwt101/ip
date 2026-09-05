@@ -71,36 +71,36 @@ public class Parser {
         String arguments = (parts.length > 1) ? parts[1].trim() : "";
 
         switch (keyword) {
-        case EXIT_COMMAND:
-            return new ExitCommand();
+            case EXIT_COMMAND:
+                return new ExitCommand();
 
-        case LIST_COMMAND:
-            return new ListCommand();
+            case LIST_COMMAND:
+                return new ListCommand();
 
-        case MARK_COMMAND:
-            return new MarkCommand(arguments, true);
+            case MARK_COMMAND:
+                return new MarkCommand(arguments, true);
 
-        case UNMARK_COMMAND:
-            return new MarkCommand(arguments, false);
+            case UNMARK_COMMAND:
+                return new MarkCommand(arguments, false);
 
-        case DELETE_COMMAND:
-            return new DeleteCommand(arguments);
+            case DELETE_COMMAND:
+                return new DeleteCommand(arguments);
 
-        case FIND_COMMAND:
-            if (arguments.isEmpty()) {
-                throw new MiloException("Tell me what to search for. Try: find book");
-            }
-            return new FindCommand(arguments);
+            case FIND_COMMAND:
+                if (arguments.isEmpty()) {
+                    throw new MiloException("Tell me what to search for. Try: find book");
+                }
+                return new FindCommand(arguments);
 
-        case TODO_COMMAND:
-        case DEADLINE_COMMAND:
-        case EVENT_COMMAND:
-            return new AddCommand(buildTask(keyword, arguments));
+            case TODO_COMMAND:
+            case DEADLINE_COMMAND:
+            case EVENT_COMMAND:
+                return new AddCommand(buildTask(keyword, arguments));
 
-        default:
-            throw new MiloException("I don't know what \"" + keyword + "\" means. "
-                    + "I understand: todo, deadline, event, list, find, mark, unmark, "
-                    + "delete and bye.");
+            default:
+                throw new MiloException("I don't know what \"" + keyword + "\" means. "
+                        + "I understand: todo, deadline, event, list, find, mark, unmark, "
+                        + "delete and bye.");
         }
     }
 
@@ -116,69 +116,69 @@ public class Parser {
      */
     private static Task buildTask(String keyword, String arguments) throws MiloException {
         switch (keyword) {
-        case TODO_COMMAND:
-            if (arguments.isEmpty()) {
-                throw new MiloException("A todo needs a description. "
-                        + "Try: todo borrow book");
-            }
-            return new Todo(arguments);
+            case TODO_COMMAND:
+                if (arguments.isEmpty()) {
+                    throw new MiloException("A todo needs a description. "
+                            + "Try: todo borrow book");
+                }
+                return new Todo(arguments);
 
-        case DEADLINE_COMMAND: {
-            int byIndex = indexOfMarker(arguments, BY_MARKER, 0);
-            if (byIndex < 0) {
-                throw new MiloException("I need to know when that is due. "
-                        + "Add " + BY_MARKER + ", like: deadline return book "
-                        + BY_MARKER + " Sunday");
+            case DEADLINE_COMMAND: {
+                int byIndex = indexOfMarker(arguments, BY_MARKER, 0);
+                if (byIndex < 0) {
+                    throw new MiloException("I need to know when that is due. "
+                            + "Add " + BY_MARKER + ", like: deadline return book "
+                            + BY_MARKER + " Sunday");
+                }
+                String description = arguments.substring(0, byIndex).trim();
+                String by = arguments.substring(byIndex + BY_MARKER.length()).trim();
+                if (description.isEmpty()) {
+                    throw new MiloException("A deadline needs a description before "
+                            + BY_MARKER + ". Try: deadline return book "
+                            + BY_MARKER + " Sunday");
+                }
+                if (by.isEmpty()) {
+                    throw new MiloException("Tell me what comes after " + BY_MARKER
+                            + ", like: deadline return book " + BY_MARKER + " Sunday");
+                }
+                return new Deadline(description, by);
             }
-            String description = arguments.substring(0, byIndex).trim();
-            String by = arguments.substring(byIndex + BY_MARKER.length()).trim();
-            if (description.isEmpty()) {
-                throw new MiloException("A deadline needs a description before "
-                        + BY_MARKER + ". Try: deadline return book "
-                        + BY_MARKER + " Sunday");
-            }
-            if (by.isEmpty()) {
-                throw new MiloException("Tell me what comes after " + BY_MARKER
-                        + ", like: deadline return book " + BY_MARKER + " Sunday");
-            }
-            return new Deadline(description, by);
-        }
 
-        case EVENT_COMMAND: {
-            int fromIndex = indexOfMarker(arguments, FROM_MARKER, 0);
-            if (fromIndex < 0) {
-                throw new MiloException("I need to know when that event starts. "
-                        + "Add " + FROM_MARKER + ", like: event project meeting "
-                        + FROM_MARKER + " Mon 2pm " + TO_MARKER + " 4pm");
+            case EVENT_COMMAND: {
+                int fromIndex = indexOfMarker(arguments, FROM_MARKER, 0);
+                if (fromIndex < 0) {
+                    throw new MiloException("I need to know when that event starts. "
+                            + "Add " + FROM_MARKER + ", like: event project meeting "
+                            + FROM_MARKER + " Mon 2pm " + TO_MARKER + " 4pm");
+                }
+                // Look for /to only after /from, so the two markers cannot be
+                // picked up out of order.
+                int toIndex = indexOfMarker(arguments, TO_MARKER, fromIndex + FROM_MARKER.length());
+                if (toIndex < 0) {
+                    throw new MiloException("I need to know when that event ends. "
+                            + "Add " + TO_MARKER + " after " + FROM_MARKER
+                            + ", like: event project meeting " + FROM_MARKER
+                            + " Mon 2pm " + TO_MARKER + " 4pm");
+                }
+                String description = arguments.substring(0, fromIndex).trim();
+                String from = arguments.substring(fromIndex + FROM_MARKER.length(), toIndex).trim();
+                String to = arguments.substring(toIndex + TO_MARKER.length()).trim();
+                if (description.isEmpty()) {
+                    throw new MiloException("An event needs a description before "
+                            + FROM_MARKER + ". Try: event project meeting "
+                            + FROM_MARKER + " Mon 2pm " + TO_MARKER + " 4pm");
+                }
+                if (from.isEmpty() || to.isEmpty()) {
+                    throw new MiloException("An event needs both a start and an end. "
+                            + "Try: event project meeting " + FROM_MARKER + " Mon 2pm "
+                            + TO_MARKER + " 4pm");
+                }
+                return new Event(description, from, to);
             }
-            // Look for /to only after /from, so the two markers cannot be
-            // picked up out of order.
-            int toIndex = indexOfMarker(arguments, TO_MARKER, fromIndex + FROM_MARKER.length());
-            if (toIndex < 0) {
-                throw new MiloException("I need to know when that event ends. "
-                        + "Add " + TO_MARKER + " after " + FROM_MARKER
-                        + ", like: event project meeting " + FROM_MARKER
-                        + " Mon 2pm " + TO_MARKER + " 4pm");
-            }
-            String description = arguments.substring(0, fromIndex).trim();
-            String from = arguments.substring(fromIndex + FROM_MARKER.length(), toIndex).trim();
-            String to = arguments.substring(toIndex + TO_MARKER.length()).trim();
-            if (description.isEmpty()) {
-                throw new MiloException("An event needs a description before "
-                        + FROM_MARKER + ". Try: event project meeting "
-                        + FROM_MARKER + " Mon 2pm " + TO_MARKER + " 4pm");
-            }
-            if (from.isEmpty() || to.isEmpty()) {
-                throw new MiloException("An event needs both a start and an end. "
-                        + "Try: event project meeting " + FROM_MARKER + " Mon 2pm "
-                        + TO_MARKER + " 4pm");
-            }
-            return new Event(description, from, to);
-        }
 
-        default:
-            // Unreachable: parse() only calls buildTask for the three cases above.
-            throw new MiloException("I don't know what \"" + keyword + "\" means.");
+            default:
+                // Unreachable: parse() only calls buildTask for the three cases above.
+                throw new MiloException("I don't know what \"" + keyword + "\" means.");
         }
     }
 

@@ -45,8 +45,10 @@ except where a rule is explicitly scoped to non-test code below.
   `for` header.
 - One blank line between logical units inside a method body.
 - Method form: `public void someMethod() throws SomeException { ... }`.
-- Switch statements: `case` labels align with `switch`, not indented further
-  (see `Parser.parse`); mark an intentional fallthrough with `// Fallthrough`.
+- Switch statements: `case` labels are indented one level (4 spaces) deeper
+  than `switch`, and each case's body one level deeper again — this is what
+  the project's Checkstyle config (`config/checkstyle/checkstyle.xml`)
+  enforces. Mark an intentional fallthrough with `// Fallthrough`.
 - Array brackets attach to the type, not the variable: `int[] a`, not `int a[]`.
 
 ## Imports & code organization
