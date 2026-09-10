@@ -79,6 +79,10 @@ public class Storage {
      */
     public ArrayList<Task> load() {
         loadWarnings.clear();
+        // Warnings describe one load only; a stale warning from a previous
+        // load would be reported against this one.
+        assert loadWarnings.isEmpty() : "warnings should be cleared before a fresh load";
+
         ArrayList<Task> tasks = new ArrayList<>();
 
         if (!Files.exists(filePath)) {
@@ -134,6 +138,10 @@ public class Storage {
             for (Task task : tasks) {
                 lines.add(task.toFileFormat());
             }
+
+            // The file is rewritten in full, so losing a line here would
+            // silently drop a task from the user's saved list.
+            assert lines.size() == tasks.size() : "every task should produce exactly one saved line";
             Files.write(filePath, lines);
         } catch (IOException e) {
             throw new MiloException("I couldn't save your tasks to " + filePath
@@ -198,6 +206,9 @@ public class Storage {
             default:
                 throw new MiloException("unknown task type: " + type);
         }
+
+        // Every branch above either assigned a task or threw.
+        assert task != null : "parseTask() should have built a task or thrown";
 
         if (doneFlag.equals(DONE_FLAG)) {
             task.markAsDone();

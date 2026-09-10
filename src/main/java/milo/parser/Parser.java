@@ -64,9 +64,15 @@ public class Parser {
      *                       are missing or incomplete
      */
     public static Command parse(String fullCommand) throws MiloException {
+        assert fullCommand != null : "parse() should never be handed null";
+
         // Split once, so the first word is the command and the remainder
         // (which may itself contain spaces) is that command's arguments.
         String[] parts = fullCommand.split("\\s+", 2);
+        // split() always returns at least one element, which is what makes
+        // reading parts[0] below safe without a length check of its own.
+        assert parts.length >= 1 : "split() should always produce at least one element";
+
         String keyword = parts[0];
         String arguments = (parts.length > 1) ? parts[1].trim() : "";
 
@@ -115,6 +121,13 @@ public class Parser {
      * @throws MiloException if the arguments are missing or incomplete
      */
     private static Task buildTask(String keyword, String arguments) throws MiloException {
+        // parse() routes only the three add-type command words here, so the
+        // default branch below is unreachable in normal use and exists only
+        // because the compiler cannot see that.
+        assert keyword.equals(TODO_COMMAND) || keyword.equals(DEADLINE_COMMAND)
+                || keyword.equals(EVENT_COMMAND)
+                : "buildTask() was given a command word it cannot build: " + keyword;
+
         switch (keyword) {
             case TODO_COMMAND:
                 return buildTodo(arguments);
@@ -232,6 +245,11 @@ public class Parser {
      *         word of its own at or after fromIndex
      */
     private static int indexOfMarker(String arguments, String marker, int fromIndex) {
+        // Callers pass either 0 or a position just past a marker they already
+        // found, so the search never starts outside the text.
+        assert fromIndex >= 0 && fromIndex <= arguments.length()
+                : "fromIndex should be a position within the arguments";
+
         int index = arguments.indexOf(marker, fromIndex);
         while (index >= 0) {
             int afterMarker = index + marker.length();

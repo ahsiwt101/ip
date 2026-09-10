@@ -36,6 +36,9 @@ public class TaskList {
      * @param task the task to add
      */
     public void add(Task task) {
+        // Parser either builds a real task or throws, so it never hands over null.
+        assert task != null : "a null task should never be added to the list";
+
         tasks.add(task);
     }
 
@@ -48,7 +51,12 @@ public class TaskList {
      */
     public Task delete(int index) throws MiloException {
         requireInRange(index);
-        return tasks.remove(index);
+
+        Task removed = tasks.remove(index);
+        // requireInRange has already ruled out the only case that could
+        // return nothing, so callers are safe to display this directly.
+        assert removed != null : "an in-range index should always yield a task";
+        return removed;
     }
 
     /**
@@ -149,6 +157,10 @@ public class TaskList {
             // Tasks are numbered from 1 for the user, but indexed from 0.
             lines[i + 1] = (i + 1) + "." + tasksToShow.get(i);
         }
+
+        // One header line plus one line per task: a mismatch would mean the
+        // caller was silently shown fewer tasks than it passed in.
+        assert lines.length == tasksToShow.size() + 1 : "every task should get exactly one line";
         return lines;
     }
 
