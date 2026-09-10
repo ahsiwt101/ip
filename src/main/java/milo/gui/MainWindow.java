@@ -63,7 +63,10 @@ public class MainWindow extends AnchorPane {
     @FXML
     private void handleUserInput() {
         String input = userInput.getText();
-        if (input.isEmpty()) {
+        // isBlank() rather than isEmpty(): a field holding only spaces is
+        // just as empty from the user's point of view, and letting it
+        // through reaches the parser as an unknown command word.
+        if (input.isBlank()) {
             return;
         }
 
