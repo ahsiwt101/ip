@@ -2,6 +2,8 @@ package milo.task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import milo.exception.MiloException;
 
@@ -123,12 +125,9 @@ public class TaskList {
      *         line if nothing matched
      */
     public String[] getMatchingDisplayLines(String keyword) {
-        ArrayList<Task> matches = new ArrayList<>();
-        for (Task task : tasks) {
-            if (task.getDescription().contains(keyword)) {
-                matches.add(task);
-            }
-        }
+        List<Task> matches = tasks.stream()
+                .filter(task -> task.getDescription().contains(keyword))
+                .toList();
 
         return renderNumbered(matches,
                 "Here are the matching tasks in your list:",
@@ -151,12 +150,12 @@ public class TaskList {
             return new String[] {emptyMessage};
         }
 
-        String[] lines = new String[tasksToShow.size() + 1];
-        lines[0] = header;
-        for (int i = 0; i < tasksToShow.size(); i++) {
-            // Tasks are numbered from 1 for the user, but indexed from 0.
-            lines[i + 1] = (i + 1) + "." + tasksToShow.get(i);
-        }
+        // Tasks are numbered from 1 for the user, but indexed from 0.
+        String[] lines = Stream.concat(
+                Stream.of(header),
+                IntStream.range(0, tasksToShow.size())
+                        .mapToObj(i -> (i + 1) + "." + tasksToShow.get(i)))
+                .toArray(String[]::new);
 
         // One header line plus one line per task: a mismatch would mean the
         // caller was silently shown fewer tasks than it passed in.
