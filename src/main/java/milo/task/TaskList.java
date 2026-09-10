@@ -1,6 +1,7 @@
 package milo.task;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import milo.exception.MiloException;
 
@@ -97,17 +98,9 @@ public class TaskList {
      *         nothing has been stored yet
      */
     public String[] getDisplayLines() {
-        if (tasks.isEmpty()) {
-            return new String[] {"There is nothing in your list yet."};
-        }
-
-        String[] lines = new String[tasks.size() + 1];
-        lines[0] = "Here are the tasks in your list:";
-        for (int i = 0; i < tasks.size(); i++) {
-            // Tasks are numbered from 1 for the user, but indexed from 0.
-            lines[i + 1] = (i + 1) + "." + tasks.get(i);
-        }
-        return lines;
+        return renderNumbered(tasks,
+                "Here are the tasks in your list:",
+                "There is nothing in your list yet.");
     }
 
     /**
@@ -129,14 +122,32 @@ public class TaskList {
             }
         }
 
-        if (matches.isEmpty()) {
-            return new String[] {"There are no matching tasks in your list."};
+        return renderNumbered(matches,
+                "Here are the matching tasks in your list:",
+                "There are no matching tasks in your list.");
+    }
+
+    /**
+     * Renders tasks as a header followed by lines numbered from 1, which is
+     * how both the full list and a search result are displayed.
+     *
+     * @param tasksToShow  the tasks to render, in the order to show them
+     * @param header       the line introducing the block
+     * @param emptyMessage the single line to show instead when there is
+     *                     nothing to render
+     * @return the lines of the block
+     */
+    private static String[] renderNumbered(List<Task> tasksToShow, String header,
+            String emptyMessage) {
+        if (tasksToShow.isEmpty()) {
+            return new String[] {emptyMessage};
         }
 
-        String[] lines = new String[matches.size() + 1];
-        lines[0] = "Here are the matching tasks in your list:";
-        for (int i = 0; i < matches.size(); i++) {
-            lines[i + 1] = (i + 1) + "." + matches.get(i);
+        String[] lines = new String[tasksToShow.size() + 1];
+        lines[0] = header;
+        for (int i = 0; i < tasksToShow.size(); i++) {
+            // Tasks are numbered from 1 for the user, but indexed from 0.
+            lines[i + 1] = (i + 1) + "." + tasksToShow.get(i);
         }
         return lines;
     }
