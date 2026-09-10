@@ -6,6 +6,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import milo.exception.MiloException;
 import milo.task.Deadline;
@@ -79,11 +81,10 @@ public class Storage {
      */
     public ArrayList<Task> load() {
         loadWarnings.clear();
-        ArrayList<Task> tasks = new ArrayList<>();
 
         if (!Files.exists(filePath)) {
             // First run on this computer: there is simply nothing to load.
-            return tasks;
+            return new ArrayList<>();
         }
 
         List<String> lines;
@@ -92,22 +93,21 @@ public class Storage {
         } catch (IOException e) {
             loadWarnings.add("I couldn't read " + filePath
                     + ", so I'm starting with an empty list.");
-            return tasks;
+            return new ArrayList<>();
         }
 
-        int skipped = 0;
-        for (String line : lines) {
-            String trimmed = line.trim();
-            if (trimmed.isEmpty()) {
-                continue;
-            }
-            try {
-                tasks.add(parseTask(trimmed));
-            } catch (MiloException e) {
-                skipped++;
-            }
-        }
+        List<String> savedLines = lines.stream()
+                .map(String::trim)
+                .filter(line -> !line.isEmpty())
+                .toList();
 
+        ArrayList<Task> tasks = savedLines.stream()
+                .map(Storage::tryParseTask)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        // Whatever did not survive the pipeline was a line we could not read.
+        int skipped = savedLines.size() - tasks.size();
         if (skipped > 0) {
             loadWarnings.add("I skipped " + skipped + " line(s) in " + filePath
                     + " that I couldn't understand. The rest of your list is intact.");
@@ -130,10 +130,9 @@ public class Storage {
                 Files.createDirectories(parent);
             }
 
-            ArrayList<String> lines = new ArrayList<>();
-            for (Task task : tasks) {
-                lines.add(task.toFileFormat());
-            }
+            List<String> lines = tasks.stream()
+                    .map(Task::toFileFormat)
+                    .toList();
             Files.write(filePath, lines);
         } catch (IOException e) {
             throw new MiloException("I couldn't save your tasks to " + filePath
@@ -157,6 +156,24 @@ public class Storage {
      */
     public Path getFilePath() {
         return filePath;
+    }
+
+    /**
+     * Reads one saved line, reporting an unreadable one as an empty result
+     * rather than as an exception, so that a load can carry on past it.
+     * {@link #parseTask} throws a checked exception, which a stream cannot
+     * carry; turning it into an {@link Optional} at this boundary lets the
+     * pipeline filter out the bad lines and count them afterwards.
+     *
+     * @param line one line of the save file, already trimmed
+     * @return the task the line describes, or empty if it could not be read
+     */
+    private static Optional<Task> tryParseTask(String line) {
+        try {
+            return Optional.of(parseTask(line));
+        } catch (MiloException e) {
+            return Optional.empty();
+        }
     }
 
     /**
