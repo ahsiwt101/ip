@@ -51,7 +51,6 @@ public class Milo {
         ui.showWelcome();
         ui.showLoadStatus(storage.getLoadWarnings(), tasks.size());
 
-        boolean isExit = false;
         // hasNextCommand() guards against the input ending without "bye",
         // which would otherwise make readCommand() throw.
         while (!isExit && ui.hasNextCommand()) {

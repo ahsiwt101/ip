@@ -108,21 +108,9 @@ public class TaskList {
      *         nothing has been stored yet
      */
     public String[] getDisplayLines() {
-        if (tasks.isEmpty()) {
-            return new String[] {"There is nothing in your list yet."};
-        }
-
-        // Tasks are numbered from 1 for the user, but indexed from 0.
-        String[] lines = Stream.concat(
-                Stream.of("Here are the tasks in your list:"),
-                IntStream.range(0, tasks.size())
-                        .mapToObj(i -> (i + 1) + "." + tasks.get(i)))
-                .toArray(String[]::new);
-
-        // One header line plus one line per task: a mismatch would mean the
-        // user was silently shown fewer tasks than the list actually holds.
-        assert lines.length == tasks.size() + 1 : "every task should get exactly one line";
-        return lines;
+        return renderNumbered(tasks,
+                "Here are the tasks in your list:",
+                "There is nothing in your list yet.");
     }
 
     /**
@@ -141,19 +129,37 @@ public class TaskList {
                 .filter(task -> task.getDescription().contains(keyword))
                 .toList();
 
-        if (matches.isEmpty()) {
-            return new String[] {"There are no matching tasks in your list."};
+        return renderNumbered(matches,
+                "Here are the matching tasks in your list:",
+                "There are no matching tasks in your list.");
+    }
+
+    /**
+     * Renders tasks as a header followed by lines numbered from 1, which is
+     * how both the full list and a search result are displayed.
+     *
+     * @param tasksToShow  the tasks to render, in the order to show them
+     * @param header       the line introducing the block
+     * @param emptyMessage the single line to show instead when there is
+     *                     nothing to render
+     * @return the lines of the block
+     */
+    private static String[] renderNumbered(List<Task> tasksToShow, String header,
+            String emptyMessage) {
+        if (tasksToShow.isEmpty()) {
+            return new String[] {emptyMessage};
         }
 
+        // Tasks are numbered from 1 for the user, but indexed from 0.
         String[] lines = Stream.concat(
-                Stream.of("Here are the matching tasks in your list:"),
-                IntStream.range(0, matches.size())
-                        .mapToObj(i -> (i + 1) + "." + matches.get(i)))
+                Stream.of(header),
+                IntStream.range(0, tasksToShow.size())
+                        .mapToObj(i -> (i + 1) + "." + tasksToShow.get(i)))
                 .toArray(String[]::new);
 
-        // Matches are a subset of the list, so more result lines than tasks
-        // would mean the filter above had gone wrong.
-        assert lines.length <= tasks.size() + 1 : "matches should never outnumber the tasks";
+        // One header line plus one line per task: a mismatch would mean the
+        // caller was silently shown fewer tasks than it passed in.
+        assert lines.length == tasksToShow.size() + 1 : "every task should get exactly one line";
         return lines;
     }
 
