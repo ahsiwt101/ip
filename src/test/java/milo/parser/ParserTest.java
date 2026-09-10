@@ -16,6 +16,7 @@ import milo.command.ExitCommand;
 import milo.command.FindCommand;
 import milo.command.ListCommand;
 import milo.command.MarkCommand;
+import milo.command.UndoCommand;
 import milo.exception.MiloException;
 import milo.storage.Storage;
 import milo.task.Deadline;
@@ -54,6 +55,11 @@ class ParserTest {
     @Test
     void parse_delete_returnsDeleteCommand() throws MiloException {
         assertInstanceOf(DeleteCommand.class, Parser.parse("delete 1"));
+    }
+
+    @Test
+    void parse_undo_returnsUndoCommand() throws MiloException {
+        assertInstanceOf(UndoCommand.class, Parser.parse("undo"));
     }
 
     @Test

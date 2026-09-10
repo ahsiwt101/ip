@@ -25,6 +25,18 @@ public class Event extends Task {
     }
 
     /**
+     * Returns an independent copy of this event.
+     *
+     * @return an event equal to this one but sharing no state with it
+     */
+    @Override
+    public Event copy() {
+        Event copy = new Event(description, from, to);
+        copy.isDone = this.isDone;
+        return copy;
+    }
+
+    /**
      * Returns the event tagged with its type and time span, for example
      * {@code [E][ ] project meeting (from: Mon 2pm to: 4pm)}.
      */

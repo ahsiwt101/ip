@@ -15,6 +15,18 @@ public class Todo extends Task {
     }
 
     /**
+     * Returns an independent copy of this todo.
+     *
+     * @return a todo equal to this one but sharing no state with it
+     */
+    @Override
+    public Todo copy() {
+        Todo copy = new Todo(description);
+        copy.isDone = this.isDone;
+        return copy;
+    }
+
+    /**
      * Returns the todo tagged with its type, for example {@code [T][ ] borrow book}.
      */
     @Override

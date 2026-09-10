@@ -38,6 +38,11 @@ public class AddCommand extends Command {
     }
 
     @Override
+    public boolean isUndoable() {
+        return true;
+    }
+
+    @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) throws MiloException {
         tasks.add(task);
         storage.save(tasks.asArrayList());

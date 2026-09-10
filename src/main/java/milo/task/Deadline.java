@@ -113,6 +113,31 @@ public class Deadline extends Task {
     }
 
     /**
+     * Creates a deadline from an existing one, taking its already-parsed due
+     * date rather than reading it from text again. Kept private because it
+     * exists only to serve {@link #copy()}, and because the public
+     * constructor's job of interpreting user input does not apply here.
+     *
+     * @param other the deadline to copy
+     */
+    private Deadline(Deadline other) {
+        super(other.description);
+        this.by = other.by;
+        this.hasTime = other.hasTime;
+        this.isDone = other.isDone;
+    }
+
+    /**
+     * Returns an independent copy of this deadline.
+     *
+     * @return a deadline equal to this one but sharing no state with it
+     */
+    @Override
+    public Deadline copy() {
+        return new Deadline(this);
+    }
+
+    /**
      * Returns the due date written the way it is shown to the user.
      *
      * @return e.g. "Oct 15 2019", or "Dec 2 2019, 6:00pm" when a time was given

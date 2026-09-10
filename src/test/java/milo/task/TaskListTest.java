@@ -120,6 +120,43 @@ class TaskListTest {
     }
 
     @Test
+    void restorePrevious_noSnapshotTaken_returnsFalse() {
+        assertFalse(new TaskList().restorePrevious());
+    }
+
+    @Test
+    void restorePrevious_afterSnapshot_undoesAnAddedTask() {
+        TaskList tasks = new TaskList();
+        tasks.add(new Todo("a"));
+        tasks.saveSnapshot();
+        tasks.add(new Todo("b"));
+
+        assertTrue(tasks.restorePrevious());
+        assertEquals(1, tasks.size());
+    }
+
+    @Test
+    void restorePrevious_snapshotIsIndependentOfLaterMarking() throws MiloException {
+        TaskList tasks = new TaskList();
+        tasks.add(new Todo("read book"));
+        tasks.saveSnapshot();
+        tasks.get(0).markAsDone();
+
+        assertTrue(tasks.restorePrevious());
+        assertEquals("[T][ ] read book", tasks.get(0).toString());
+    }
+
+    @Test
+    void restorePrevious_usedTwice_secondCallReturnsFalse() {
+        TaskList tasks = new TaskList();
+        tasks.saveSnapshot();
+        tasks.add(new Todo("a"));
+
+        assertTrue(tasks.restorePrevious());
+        assertFalse(tasks.restorePrevious());
+    }
+
+    @Test
     void getMatchingDisplayLines_noTasksMatch_returnsPlaceholderMessage() {
         TaskList tasks = new TaskList();
         tasks.add(new Todo("read book"));

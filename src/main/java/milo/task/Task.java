@@ -72,6 +72,20 @@ public class Task {
     }
 
     /**
+     * Returns an independent copy of this task, carrying the same description
+     * and completion status. Undo relies on this: mark and unmark change a
+     * task in place, so a snapshot that shared tasks with the live list would
+     * change along with it and have nothing to restore.
+     *
+     * @return a task equal to this one but sharing no state with it
+     */
+    public Task copy() {
+        Task copy = new Task(description);
+        copy.isDone = this.isDone;
+        return copy;
+    }
+
+    /**
      * Returns this task's description.
      *
      * @return the description supplied when the task was created

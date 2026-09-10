@@ -30,6 +30,11 @@ public class MarkCommand extends Command {
     }
 
     @Override
+    public boolean isUndoable() {
+        return true;
+    }
+
+    @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) throws MiloException {
         String verb = shouldMarkDone ? "mark" : "unmark";
         Task task = tasks.get(resolveTaskIndex(tasks, verb, rawArguments));

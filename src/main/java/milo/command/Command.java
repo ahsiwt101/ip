@@ -35,6 +35,19 @@ public abstract class Command {
     }
 
     /**
+     * Returns whether this command changes the task list, and so needs the
+     * list snapshotted before it runs so that "undo" can put it back.
+     * Overridden by the commands that add, delete, mark and unmark; the rest
+     * only read the list, and leave the existing snapshot alone so that undo
+     * keeps referring to the last command that actually changed something.
+     *
+     * @return true if this command changes the task list
+     */
+    public boolean isUndoable() {
+        return false;
+    }
+
+    /**
      * Works out which task in the list a number the user typed refers to.
      * Shared by every command that acts on an existing task (mark, unmark,
      * delete), since they all need the same checks: is there anything to act

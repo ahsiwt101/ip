@@ -7,6 +7,7 @@ import milo.command.ExitCommand;
 import milo.command.FindCommand;
 import milo.command.ListCommand;
 import milo.command.MarkCommand;
+import milo.command.UndoCommand;
 import milo.exception.MiloException;
 import milo.task.Deadline;
 import milo.task.Event;
@@ -36,6 +37,9 @@ public class Parser {
 
     /** The command that searches for tasks by a keyword in their description. */
     private static final String FIND_COMMAND = "find";
+
+    /** The command that reverses the most recent change to the task list. */
+    private static final String UNDO_COMMAND = "undo";
 
     /** The command that adds a task with no date attached. */
     private static final String TODO_COMMAND = "todo";
@@ -92,6 +96,9 @@ public class Parser {
             case DELETE_COMMAND:
                 return new DeleteCommand(arguments);
 
+            case UNDO_COMMAND:
+                return new UndoCommand();
+
             case FIND_COMMAND:
                 if (arguments.isEmpty()) {
                     throw new MiloException("Tell me what to search for. Try: find book");
@@ -106,7 +113,7 @@ public class Parser {
             default:
                 throw new MiloException("I don't know what \"" + keyword + "\" means. "
                         + "I understand: todo, deadline, event, list, find, mark, unmark, "
-                        + "delete and bye.");
+                        + "delete, undo and bye.");
         }
     }
 

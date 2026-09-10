@@ -2,6 +2,7 @@ package milo.task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -16,6 +17,13 @@ import milo.exception.MiloException;
 public class TaskList {
     /** The tasks, in the order they were added. */
     private final ArrayList<Task> tasks;
+
+    /**
+     * The tasks as they stood before the most recent change, or null when
+     * nothing has changed yet. Exactly one snapshot is kept, which is what
+     * limits undo to the single most recent change.
+     */
+    private ArrayList<Task> previousTasks = null;
 
     /** Creates an empty task list. */
     public TaskList() {
@@ -161,6 +169,40 @@ public class TaskList {
         // caller was silently shown fewer tasks than it passed in.
         assert lines.length == tasksToShow.size() + 1 : "every task should get exactly one line";
         return lines;
+    }
+
+    /**
+     * Remembers the tasks as they stand now, so that a command about to
+     * change them can be undone. Replaces any earlier snapshot, so only the
+     * most recent change can ever be undone.
+     */
+    public void saveSnapshot() {
+        // Tasks are copied rather than shared: mark and unmark change a task
+        // in place, so a snapshot holding the same objects would change too.
+        previousTasks = tasks.stream()
+                .map(Task::copy)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    /**
+     * Puts the tasks back as they were at the most recent
+     * {@link #saveSnapshot()}, and forgets that snapshot so undo does not
+     * repeat.
+     *
+     * @return true if there was a snapshot to go back to, false if nothing
+     *         has changed yet
+     */
+    public boolean restorePrevious() {
+        if (previousTasks == null) {
+            return false;
+        }
+
+        // The list itself is replaced in place rather than reassigned, so
+        // that anything already holding this TaskList sees the change.
+        tasks.clear();
+        tasks.addAll(previousTasks);
+        previousTasks = null;
+        return true;
     }
 
     /**

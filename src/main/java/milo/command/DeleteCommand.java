@@ -24,6 +24,11 @@ public class DeleteCommand extends Command {
     }
 
     @Override
+    public boolean isUndoable() {
+        return true;
+    }
+
+    @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) throws MiloException {
         // delete() hands back the task it took out, so it can be shown to the
         // user without having to fetch it separately beforehand.

@@ -61,6 +61,7 @@ public class Milo {
 
             try {
                 Command command = Parser.parse(fullCommand);
+                rememberStateIfUndoable(command);
                 command.execute(tasks, ui, storage);
                 isExit = command.isExit();
             } catch (MiloException e) {
@@ -100,6 +101,7 @@ public class Milo {
     public String getResponse(String input) {
         try {
             Command command = Parser.parse(input);
+            rememberStateIfUndoable(command);
             command.execute(tasks, ui, storage);
             isExit = command.isExit();
             if (isExit) {
@@ -109,6 +111,20 @@ public class Milo {
         } catch (MiloException e) {
             isExit = false;
             return e.getMessage();
+        }
+    }
+
+    /**
+     * Snapshots the task list before a command that is about to change it,
+     * so that "undo" has something to go back to. Asking the command rather
+     * than checking its type here keeps the knowledge of which commands
+     * change the list with the commands themselves.
+     *
+     * @param command the command about to be run
+     */
+    private void rememberStateIfUndoable(Command command) {
+        if (command.isUndoable()) {
+            tasks.saveSnapshot();
         }
     }
 
