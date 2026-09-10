@@ -1,6 +1,9 @@
 package milo.task;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import milo.exception.MiloException;
 
@@ -101,13 +104,12 @@ public class TaskList {
             return new String[] {"There is nothing in your list yet."};
         }
 
-        String[] lines = new String[tasks.size() + 1];
-        lines[0] = "Here are the tasks in your list:";
-        for (int i = 0; i < tasks.size(); i++) {
-            // Tasks are numbered from 1 for the user, but indexed from 0.
-            lines[i + 1] = (i + 1) + "." + tasks.get(i);
-        }
-        return lines;
+        // Tasks are numbered from 1 for the user, but indexed from 0.
+        return Stream.concat(
+                Stream.of("Here are the tasks in your list:"),
+                IntStream.range(0, tasks.size())
+                        .mapToObj(i -> (i + 1) + "." + tasks.get(i)))
+                .toArray(String[]::new);
     }
 
     /**
@@ -122,23 +124,19 @@ public class TaskList {
      *         line if nothing matched
      */
     public String[] getMatchingDisplayLines(String keyword) {
-        ArrayList<Task> matches = new ArrayList<>();
-        for (Task task : tasks) {
-            if (task.getDescription().contains(keyword)) {
-                matches.add(task);
-            }
-        }
+        List<Task> matches = tasks.stream()
+                .filter(task -> task.getDescription().contains(keyword))
+                .toList();
 
         if (matches.isEmpty()) {
             return new String[] {"There are no matching tasks in your list."};
         }
 
-        String[] lines = new String[matches.size() + 1];
-        lines[0] = "Here are the matching tasks in your list:";
-        for (int i = 0; i < matches.size(); i++) {
-            lines[i + 1] = (i + 1) + "." + matches.get(i);
-        }
-        return lines;
+        return Stream.concat(
+                Stream.of("Here are the matching tasks in your list:"),
+                IntStream.range(0, matches.size())
+                        .mapToObj(i -> (i + 1) + "." + matches.get(i)))
+                .toArray(String[]::new);
     }
 
     /**
