@@ -38,6 +38,9 @@ public class TaskList {
      * @param task the task to add
      */
     public void add(Task task) {
+        // Parser either builds a real task or throws, so it never hands over null.
+        assert task != null : "a null task should never be added to the list";
+
         tasks.add(task);
     }
 
@@ -50,7 +53,12 @@ public class TaskList {
      */
     public Task delete(int index) throws MiloException {
         requireInRange(index);
-        return tasks.remove(index);
+
+        Task removed = tasks.remove(index);
+        // requireInRange has already ruled out the only case that could
+        // return nothing, so callers are safe to display this directly.
+        assert removed != null : "an in-range index should always yield a task";
+        return removed;
     }
 
     /**
@@ -105,11 +113,16 @@ public class TaskList {
         }
 
         // Tasks are numbered from 1 for the user, but indexed from 0.
-        return Stream.concat(
+        String[] lines = Stream.concat(
                 Stream.of("Here are the tasks in your list:"),
                 IntStream.range(0, tasks.size())
                         .mapToObj(i -> (i + 1) + "." + tasks.get(i)))
                 .toArray(String[]::new);
+
+        // One header line plus one line per task: a mismatch would mean the
+        // user was silently shown fewer tasks than the list actually holds.
+        assert lines.length == tasks.size() + 1 : "every task should get exactly one line";
+        return lines;
     }
 
     /**
@@ -132,11 +145,16 @@ public class TaskList {
             return new String[] {"There are no matching tasks in your list."};
         }
 
-        return Stream.concat(
+        String[] lines = Stream.concat(
                 Stream.of("Here are the matching tasks in your list:"),
                 IntStream.range(0, matches.size())
                         .mapToObj(i -> (i + 1) + "." + matches.get(i)))
                 .toArray(String[]::new);
+
+        // Matches are a subset of the list, so more result lines than tasks
+        // would mean the filter above had gone wrong.
+        assert lines.length <= tasks.size() + 1 : "matches should never outnumber the tasks";
+        return lines;
     }
 
     /**

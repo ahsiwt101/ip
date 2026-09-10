@@ -72,6 +72,10 @@ public abstract class Command {
         }
 
         // The user counts from 1, so 1 maps to index 0.
-        return taskNumber - 1;
+        int index = taskNumber - 1;
+        // Guaranteed by the range check above; stated here because every
+        // caller feeds this straight into TaskList without re-checking.
+        assert index >= 0 && index < tasks.size() : "resolved index should be inside the list";
+        return index;
     }
 }
