@@ -20,6 +20,12 @@ public class Task {
      * @param description what the task is about
      */
     public Task(String description) {
+        // Parser rejects an empty description for every task type, and Storage
+        // rejects a save line whose description field is empty, so no caller
+        // can reach here without a real description.
+        assert description != null : "task description should never be null";
+        assert !description.isEmpty() : "callers validate the description before constructing a task";
+
         this.description = description;
         this.isDone = false;
     }
