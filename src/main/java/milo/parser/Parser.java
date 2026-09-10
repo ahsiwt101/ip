@@ -117,69 +117,105 @@ public class Parser {
     private static Task buildTask(String keyword, String arguments) throws MiloException {
         switch (keyword) {
             case TODO_COMMAND:
-                if (arguments.isEmpty()) {
-                    throw new MiloException("A todo needs a description. "
-                            + "Try: todo borrow book");
-                }
-                return new Todo(arguments);
+                return buildTodo(arguments);
 
-            case DEADLINE_COMMAND: {
-                int byIndex = indexOfMarker(arguments, BY_MARKER, 0);
-                if (byIndex < 0) {
-                    throw new MiloException("I need to know when that is due. "
-                            + "Add " + BY_MARKER + ", like: deadline return book "
-                            + BY_MARKER + " Sunday");
-                }
-                String description = arguments.substring(0, byIndex).trim();
-                String by = arguments.substring(byIndex + BY_MARKER.length()).trim();
-                if (description.isEmpty()) {
-                    throw new MiloException("A deadline needs a description before "
-                            + BY_MARKER + ". Try: deadline return book "
-                            + BY_MARKER + " Sunday");
-                }
-                if (by.isEmpty()) {
-                    throw new MiloException("Tell me what comes after " + BY_MARKER
-                            + ", like: deadline return book " + BY_MARKER + " Sunday");
-                }
-                return new Deadline(description, by);
-            }
+            case DEADLINE_COMMAND:
+                return buildDeadline(arguments);
 
-            case EVENT_COMMAND: {
-                int fromIndex = indexOfMarker(arguments, FROM_MARKER, 0);
-                if (fromIndex < 0) {
-                    throw new MiloException("I need to know when that event starts. "
-                            + "Add " + FROM_MARKER + ", like: event project meeting "
-                            + FROM_MARKER + " Mon 2pm " + TO_MARKER + " 4pm");
-                }
-                // Look for /to only after /from, so the two markers cannot be
-                // picked up out of order.
-                int toIndex = indexOfMarker(arguments, TO_MARKER, fromIndex + FROM_MARKER.length());
-                if (toIndex < 0) {
-                    throw new MiloException("I need to know when that event ends. "
-                            + "Add " + TO_MARKER + " after " + FROM_MARKER
-                            + ", like: event project meeting " + FROM_MARKER
-                            + " Mon 2pm " + TO_MARKER + " 4pm");
-                }
-                String description = arguments.substring(0, fromIndex).trim();
-                String from = arguments.substring(fromIndex + FROM_MARKER.length(), toIndex).trim();
-                String to = arguments.substring(toIndex + TO_MARKER.length()).trim();
-                if (description.isEmpty()) {
-                    throw new MiloException("An event needs a description before "
-                            + FROM_MARKER + ". Try: event project meeting "
-                            + FROM_MARKER + " Mon 2pm " + TO_MARKER + " 4pm");
-                }
-                if (from.isEmpty() || to.isEmpty()) {
-                    throw new MiloException("An event needs both a start and an end. "
-                            + "Try: event project meeting " + FROM_MARKER + " Mon 2pm "
-                            + TO_MARKER + " 4pm");
-                }
-                return new Event(description, from, to);
-            }
+            case EVENT_COMMAND:
+                return buildEvent(arguments);
 
             default:
                 // Unreachable: parse() only calls buildTask for the three cases above.
                 throw new MiloException("I don't know what \"" + keyword + "\" means.");
         }
+    }
+
+    /**
+     * Builds the task described by a "todo" command.
+     *
+     * @param arguments everything the user typed after the command word
+     * @return the new todo
+     * @throws MiloException if no description was given
+     */
+    private static Task buildTodo(String arguments) throws MiloException {
+        if (arguments.isEmpty()) {
+            throw new MiloException("A todo needs a description. "
+                    + "Try: todo borrow book");
+        }
+        return new Todo(arguments);
+    }
+
+    /**
+     * Builds the task described by a "deadline" command, splitting the
+     * arguments at {@value #BY_MARKER}.
+     *
+     * @param arguments everything the user typed after the command word
+     * @return the new deadline
+     * @throws MiloException if the marker, the description or the date is missing
+     */
+    private static Task buildDeadline(String arguments) throws MiloException {
+        int byIndex = indexOfMarker(arguments, BY_MARKER, 0);
+        if (byIndex < 0) {
+            throw new MiloException("I need to know when that is due. "
+                    + "Add " + BY_MARKER + ", like: deadline return book "
+                    + BY_MARKER + " Sunday");
+        }
+
+        String description = arguments.substring(0, byIndex).trim();
+        String by = arguments.substring(byIndex + BY_MARKER.length()).trim();
+        if (description.isEmpty()) {
+            throw new MiloException("A deadline needs a description before "
+                    + BY_MARKER + ". Try: deadline return book "
+                    + BY_MARKER + " Sunday");
+        }
+        if (by.isEmpty()) {
+            throw new MiloException("Tell me what comes after " + BY_MARKER
+                    + ", like: deadline return book " + BY_MARKER + " Sunday");
+        }
+        return new Deadline(description, by);
+    }
+
+    /**
+     * Builds the task described by an "event" command, splitting the
+     * arguments at {@value #FROM_MARKER} and {@value #TO_MARKER}.
+     *
+     * @param arguments everything the user typed after the command word
+     * @return the new event
+     * @throws MiloException if a marker, the description or either date is missing
+     */
+    private static Task buildEvent(String arguments) throws MiloException {
+        int fromIndex = indexOfMarker(arguments, FROM_MARKER, 0);
+        if (fromIndex < 0) {
+            throw new MiloException("I need to know when that event starts. "
+                    + "Add " + FROM_MARKER + ", like: event project meeting "
+                    + FROM_MARKER + " Mon 2pm " + TO_MARKER + " 4pm");
+        }
+
+        // Look for /to only after /from, so the two markers cannot be
+        // picked up out of order.
+        int toIndex = indexOfMarker(arguments, TO_MARKER, fromIndex + FROM_MARKER.length());
+        if (toIndex < 0) {
+            throw new MiloException("I need to know when that event ends. "
+                    + "Add " + TO_MARKER + " after " + FROM_MARKER
+                    + ", like: event project meeting " + FROM_MARKER
+                    + " Mon 2pm " + TO_MARKER + " 4pm");
+        }
+
+        String description = arguments.substring(0, fromIndex).trim();
+        String from = arguments.substring(fromIndex + FROM_MARKER.length(), toIndex).trim();
+        String to = arguments.substring(toIndex + TO_MARKER.length()).trim();
+        if (description.isEmpty()) {
+            throw new MiloException("An event needs a description before "
+                    + FROM_MARKER + ". Try: event project meeting "
+                    + FROM_MARKER + " Mon 2pm " + TO_MARKER + " 4pm");
+        }
+        if (from.isEmpty() || to.isEmpty()) {
+            throw new MiloException("An event needs both a start and an end. "
+                    + "Try: event project meeting " + FROM_MARKER + " Mon 2pm "
+                    + TO_MARKER + " 4pm");
+        }
+        return new Event(description, from, to);
     }
 
     /**
