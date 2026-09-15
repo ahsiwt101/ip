@@ -1,10 +1,7 @@
 package milo.task;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.time.format.ResolverStyle;
 import java.util.Locale;
 
 import milo.exception.MiloException;
@@ -15,30 +12,10 @@ import milo.exception.MiloException;
  * <p>
  * The due date is held as a {@link LocalDateTime} rather than as text, so it
  * is a real point in time that could be compared or sorted, and so the format
- * it is displayed in is independent of the format it was typed in.
+ * it is displayed in is independent of the format it was typed in. The
+ * formats it can be typed in live in {@link TaskDate}.
  */
 public class Deadline extends Task {
-    // Input formats resolve STRICTly, so an impossible date such as
-    // 31/2/2019 is rejected instead of being quietly moved to Feb 28, which
-    // is what the default (lenient) resolver would do. Strict resolution
-    // needs "uuuu" rather than "yyyy", because "yyyy" is year-of-era and
-    // would additionally demand an era field.
-    /** Accepted input formats that include a time of day. */
-    private static final DateTimeFormatter[] DATE_TIME_FORMATS = {
-        DateTimeFormatter.ofPattern("uuuu-MM-dd HHmm", Locale.ENGLISH)
-                .withResolverStyle(ResolverStyle.STRICT),
-        DateTimeFormatter.ofPattern("d/M/uuuu HHmm", Locale.ENGLISH)
-                .withResolverStyle(ResolverStyle.STRICT),
-    };
-
-    /** Accepted input formats that give only a date. */
-    private static final DateTimeFormatter[] DATE_FORMATS = {
-        DateTimeFormatter.ofPattern("uuuu-MM-dd", Locale.ENGLISH)
-                .withResolverStyle(ResolverStyle.STRICT),
-        DateTimeFormatter.ofPattern("d/M/uuuu", Locale.ENGLISH)
-                .withResolverStyle(ResolverStyle.STRICT),
-    };
-
     /** How a date with no time is shown to the user, e.g. "Oct 15 2019". */
     private static final DateTimeFormatter DISPLAY_DATE =
             DateTimeFormatter.ofPattern("MMM d yyyy", Locale.ENGLISH);
@@ -76,40 +53,13 @@ public class Deadline extends Task {
         super(description);
 
         String trimmed = by.trim();
-        LocalDateTime parsed = null;
-        boolean withTime = false;
+        TaskDate.Parsed parsed = TaskDate.parse(trimmed).orElseThrow(() ->
+                new MiloException("I couldn't make sense of \"" + trimmed + "\" as a date. "
+                        + "Try 2019-10-15, or 2019-10-15 1800 to include a time "
+                        + "(2/12/2019 and 2/12/2019 1800 work too)."));
 
-        // Try the formats that carry a time first: "2019-10-15" would also
-        // match the front of "2019-10-15 1800" and silently lose the time.
-        for (DateTimeFormatter format : DATE_TIME_FORMATS) {
-            try {
-                parsed = LocalDateTime.parse(trimmed, format);
-                withTime = true;
-                break;
-            } catch (DateTimeParseException e) {
-                continue; // not this format; try the next
-            }
-        }
-
-        if (parsed == null) {
-            for (DateTimeFormatter format : DATE_FORMATS) {
-                try {
-                    parsed = LocalDate.parse(trimmed, format).atStartOfDay();
-                    break;
-                } catch (DateTimeParseException e) {
-                    continue;
-                }
-            }
-        }
-
-        if (parsed == null) {
-            throw new MiloException("I couldn't read \"" + trimmed + "\" as a date. "
-                    + "Try 2019-10-15, or 2019-10-15 1800 to include a time "
-                    + "(2/12/2019 and 2/12/2019 1800 work too).");
-        }
-
-        this.by = parsed;
-        this.hasTime = withTime;
+        this.by = parsed.value();
+        this.hasTime = parsed.hasTime();
     }
 
     /**
