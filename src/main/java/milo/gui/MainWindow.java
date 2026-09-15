@@ -7,7 +7,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import milo.Milo;
@@ -17,7 +16,7 @@ import milo.Milo;
  * a text field for typing commands, and a button that does the same thing
  * as pressing Enter in that field.
  */
-public class MainWindow extends AnchorPane {
+public class MainWindow extends VBox {
     /** How long the goodbye message stays on screen before the window closes. */
     private static final Duration EXIT_DELAY = Duration.seconds(1.5);
 
@@ -36,7 +35,7 @@ public class MainWindow extends AnchorPane {
     /** The chatbot this window talks to, injected once the FXML is loaded. */
     private Milo milo;
 
-    private final Image userImage = new Image(getClass().getResourceAsStream("/images/User.png"));
+    /** Milo's avatar. The user has none: see {@link DialogBox}. */
     private final Image miloImage = new Image(getClass().getResourceAsStream("/images/Milo.png"));
 
     /** Keeps the dialog history scrolled to the newest message. */
@@ -71,8 +70,12 @@ public class MainWindow extends AnchorPane {
         }
 
         String response = milo.getResponse(input);
-        addDialog(DialogBox.getUserDialog(input, userImage));
-        addDialog(DialogBox.getMiloDialog(response, miloImage));
+        addDialog(DialogBox.getUserDialog(input));
+        // A command that could not be carried out is shown in its own style,
+        // so a mistyped command is not mistaken for a normal reply.
+        addDialog(milo.isError()
+                ? DialogBox.getErrorDialog(response, miloImage)
+                : DialogBox.getMiloDialog(response, miloImage));
         userInput.clear();
 
         if (milo.isExit()) {

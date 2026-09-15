@@ -31,6 +31,14 @@ public class Milo {
     private boolean isExit = false;
 
     /**
+     * Whether the most recent {@link #getResponse} call could not be carried
+     * out. Kept so an interface can show a failure differently from a normal
+     * reply, which it otherwise has no way to tell apart: both come back as
+     * plain text.
+     */
+    private boolean isError = false;
+
+    /**
      * Creates Milo, loading whatever tasks were saved from a previous run.
      *
      * @param filePath where the tasks are saved, e.g. "data/milo.txt"
@@ -104,12 +112,14 @@ public class Milo {
             rememberStateIfUndoable(command);
             command.execute(tasks, ui, storage);
             isExit = command.isExit();
+            isError = false;
             if (isExit) {
                 ui.showGoodbye();
             }
             return ui.getLastResponse();
         } catch (MiloException e) {
             isExit = false;
+            isError = true;
             return e.getMessage();
         }
     }
@@ -126,6 +136,16 @@ public class Milo {
         if (command.isUndoable()) {
             tasks.saveSnapshot();
         }
+    }
+
+    /**
+     * Returns whether the most recent {@link #getResponse} call failed.
+     *
+     * @return true if the last reply was an error message rather than the
+     *         result of a command that ran
+     */
+    public boolean isError() {
+        return isError;
     }
 
     /**
