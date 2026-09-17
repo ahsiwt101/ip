@@ -3,16 +3,10 @@ plugins {
     id 'application'
     id 'com.gradleup.shadow' version '9.5.1'
     id 'checkstyle'
-    id 'org.openjfx.javafxplugin' version '0.1.0'
 }
 
 checkstyle {
     toolVersion = '10.20.2'
-}
-
-javafx {
-    version = '21.0.4'
-    modules = ['javafx.controls', 'javafx.fxml']
 }
 
 java {
@@ -25,6 +19,28 @@ repositories {
 }
 
 dependencies {
+    // JavaFX is declared for all three operating systems, as the SE-EDU
+    // JavaFX tutorial specifies, rather than through the JavaFX Gradle
+    // plugin. The plugin resolves the artifacts for whichever machine runs
+    // the build, so a JAR built on a Mac would carry only macOS natives and
+    // fail to start on Windows or Linux. Naming win, mac and linux puts all
+    // of their natives in the one fat JAR, and JavaFX picks the right set at
+    // runtime.
+    String javaFxVersion = '21.0.4'
+
+    implementation("org.openjfx:javafx-base:${javaFxVersion}:win")
+    implementation("org.openjfx:javafx-base:${javaFxVersion}:mac")
+    implementation("org.openjfx:javafx-base:${javaFxVersion}:linux")
+    implementation("org.openjfx:javafx-controls:${javaFxVersion}:win")
+    implementation("org.openjfx:javafx-controls:${javaFxVersion}:mac")
+    implementation("org.openjfx:javafx-controls:${javaFxVersion}:linux")
+    implementation("org.openjfx:javafx-fxml:${javaFxVersion}:win")
+    implementation("org.openjfx:javafx-fxml:${javaFxVersion}:mac")
+    implementation("org.openjfx:javafx-fxml:${javaFxVersion}:linux")
+    implementation("org.openjfx:javafx-graphics:${javaFxVersion}:win")
+    implementation("org.openjfx:javafx-graphics:${javaFxVersion}:mac")
+    implementation("org.openjfx:javafx-graphics:${javaFxVersion}:linux")
+
     String jUnitVersion = '5.14.4'
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:${jUnitVersion}"
