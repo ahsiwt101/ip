@@ -42,10 +42,10 @@ public class MarkCommand extends Command {
         String[] confirmation;
         if (shouldMarkDone) {
             task.markAsDone();
-            confirmation = new String[] {"Nice! I've marked this task as done:", "  " + task};
+            confirmation = new String[] {"Nice one. Crossing this off:", "  " + task};
         } else {
             task.markAsNotDone();
-            confirmation = new String[] {"OK, I've marked this task as not done yet:", "  " + task};
+            confirmation = new String[] {"Sure — back on the pile:", "  " + task};
         }
 
         storage.save(tasks.asArrayList());

@@ -79,8 +79,8 @@ class AddCommandTest {
         new AddCommand(new Todo("read book")).execute(tasks, new Ui(), storage);
 
         String printed = capturedOut.toString();
-        assertTrue(printed.contains("Got it. I've added this task:"));
+        assertTrue(printed.contains("Got it — that's on the list now:"));
         assertTrue(printed.contains("[T][ ] read book"));
-        assertTrue(printed.contains("Now you have 2 tasks in the list."));
+        assertTrue(printed.contains("That makes 2 tasks to chase."));
     }
 }

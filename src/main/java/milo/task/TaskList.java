@@ -117,8 +117,8 @@ public class TaskList {
      */
     public String[] getDisplayLines() {
         return renderNumbered(tasks,
-                "Here are the tasks in your list:",
-                "There is nothing in your list yet.");
+                "Here's everything on your list:",
+                "Your list is empty — nothing to chase yet.");
     }
 
     /**
@@ -138,8 +138,8 @@ public class TaskList {
                 .toList();
 
         return renderNumbered(matches,
-                "Here are the matching tasks in your list:",
-                "There are no matching tasks in your list.");
+                "Here's what I sniffed out:",
+                "I had a good sniff around and found nothing matching.");
     }
 
     /**
@@ -215,7 +215,7 @@ public class TaskList {
      */
     private void requireInRange(int index) throws MiloException {
         if (index < 0 || index >= tasks.size()) {
-            throw new MiloException("There is no task " + (index + 1) + " in your list.");
+            throw new MiloException("There's no task " + (index + 1) + " on your list.");
         }
     }
 }

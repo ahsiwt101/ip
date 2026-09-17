@@ -8,6 +8,12 @@ import java.util.Scanner;
  * printing what Milo says back. Nothing outside this class touches
  * {@code System.out} or {@code System.in} directly, so the console format
  * (dividers, indentation) only needs to be gotten right in one place.
+ * <p>
+ * Milo speaks in one consistent voice: eager and warm, brief to the point of
+ * clipped, and willing to own a mistake without making a fuss of it. The dog
+ * it is named after shows up in the verbs (fetching, sniffing out, burying)
+ * rather than in exclamation marks, so the personality does not get in the
+ * way of reading a long task list.
  */
 public class Ui {
     /** Indentation applied to every line Milo prints. */
@@ -28,7 +34,7 @@ public class Ui {
             + "|_|  |_||_||_| \\___/ ";
 
     /** The plain greeting shown alongside the banner. */
-    private static final String GREETING = "Hello! I'm Milo.\nWhat can I do for you?";
+    private static final String GREETING = "Woof! Milo here.\nWhat are we getting done today?";
 
     /** Where user input is read from. */
     private final Scanner scanner = new Scanner(System.in);
@@ -53,7 +59,7 @@ public class Ui {
 
     /** Prints the closing message shown when the user exits. */
     public void showGoodbye() {
-        showResponse("Bye. Hope to see you again soon!");
+        showResponse("Off I go. Your list is safe with me!");
     }
 
     /**
@@ -70,8 +76,8 @@ public class Ui {
         if (!warnings.isEmpty()) {
             showResponse(warnings.toArray(new String[0]));
         } else if (taskCount > 0) {
-            showResponse("I loaded " + taskCount + " task(s) from last time. "
-                    + "Type list to see them.");
+            showResponse("Fetched " + describeCount(taskCount) + " from last time. "
+                    + "Say list to see them.");
         } else {
             return "";
         }
@@ -85,6 +91,18 @@ public class Ui {
      */
     public void showError(String message) {
         showResponse(message);
+    }
+
+    /**
+     * Describes a number of tasks in words, so that a list of one is not
+     * reported as "1 tasks". Small, but it is the sort of thing that makes a
+     * chatbot sound careless.
+     *
+     * @param count how many tasks
+     * @return e.g. "1 task" or "3 tasks"
+     */
+    public static String describeCount(int count) {
+        return count == 1 ? "1 task" : count + " tasks";
     }
 
     /**

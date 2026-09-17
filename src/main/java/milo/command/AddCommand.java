@@ -47,8 +47,8 @@ public class AddCommand extends Command {
         tasks.add(task);
         storage.save(tasks.asArrayList());
         ui.showResponse(
-                "Got it. I've added this task:",
+                "Got it — that's on the list now:",
                 "  " + task,
-                "Now you have " + tasks.size() + " tasks in the list.");
+                "That makes " + Ui.describeCount(tasks.size()) + " to chase.");
     }
 }

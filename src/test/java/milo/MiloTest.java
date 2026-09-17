@@ -34,7 +34,7 @@ class MiloTest {
     void getResponse_invalidCommand_returnsErrorMessage() {
         Milo milo = newMilo();
         String response = milo.getResponse("blah");
-        assertTrue(response.contains("don't know what \"blah\" means"));
+        assertTrue(response.contains("\"blah\" isn't a trick I know"));
         assertFalse(milo.isExit());
     }
 
@@ -42,7 +42,7 @@ class MiloTest {
     void getResponse_bye_returnsGoodbyeAndSetsExit() {
         Milo milo = newMilo();
         String response = milo.getResponse("bye");
-        assertEquals("Bye. Hope to see you again soon!", response);
+        assertEquals("Off I go. Your list is safe with me!", response);
         assertTrue(milo.isExit());
     }
 
@@ -54,7 +54,7 @@ class MiloTest {
     @Test
     void getWelcomeMessage_emptyList_isJustTheGreeting() {
         String welcome = newMilo().getWelcomeMessage();
-        assertEquals("Hello! I'm Milo.\nWhat can I do for you?", welcome);
+        assertEquals("Woof! Milo here.\nWhat are we getting done today?", welcome);
     }
 
     @Test
@@ -64,7 +64,7 @@ class MiloTest {
 
         Milo second = newMilo();
         String welcome = second.getWelcomeMessage();
-        assertTrue(welcome.contains("Hello! I'm Milo."));
-        assertTrue(welcome.contains("I loaded 1 task(s) from last time."));
+        assertTrue(welcome.contains("Woof! Milo here."));
+        assertTrue(welcome.contains("Fetched 1 task from last time."));
     }
 }

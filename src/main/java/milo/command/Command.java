@@ -64,8 +64,8 @@ public abstract class Command {
     protected static int resolveTaskIndex(TaskList tasks, String verb, String rawArguments)
             throws MiloException {
         if (tasks.isEmpty()) {
-            throw new MiloException("There is nothing in your list to " + verb + " yet. "
-                    + "Add a task first, like: todo borrow book");
+            throw new MiloException("Nothing on your list to " + verb + " yet. "
+                    + "Give me something first, like: todo borrow book");
         }
 
         int taskNumber;
@@ -75,12 +75,12 @@ public abstract class Command {
             // Covers a missing number as well as a non-numeric one. The
             // original exception is not useful to the user, so it is replaced
             // with an explanation phrased in terms of the command they typed.
-            throw new MiloException("Tell me which task number to " + verb
-                    + ", like: " + verb + " 2");
+            throw new MiloException("Which one should I " + verb + "? "
+                    + "Point me at a number, like: " + verb + " 2");
         }
 
         if (taskNumber < 1 || taskNumber > tasks.size()) {
-            throw new MiloException("There is no task " + taskNumber + " in your list. "
+            throw new MiloException("There's no task " + taskNumber + " on your list. "
                     + "Pick a number between 1 and " + tasks.size() + ".");
         }
 

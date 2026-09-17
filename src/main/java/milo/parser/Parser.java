@@ -101,7 +101,7 @@ public class Parser {
 
             case FIND_COMMAND:
                 if (arguments.isEmpty()) {
-                    throw new MiloException("Tell me what to search for. Try: find book");
+                    throw new MiloException("What should I sniff out? Try: find book");
                 }
                 return new FindCommand(arguments);
 
@@ -111,8 +111,8 @@ public class Parser {
                 return new AddCommand(buildTask(keyword, arguments));
 
             default:
-                throw new MiloException("I don't know what \"" + keyword + "\" means. "
-                        + "I understand: todo, deadline, event, list, find, mark, unmark, "
+                throw new MiloException("\"" + keyword + "\" isn't a trick I know. "
+                        + "I can do: todo, deadline, event, list, find, mark, unmark, "
                         + "delete, undo and bye.");
         }
     }
@@ -160,7 +160,7 @@ public class Parser {
      */
     private static Task buildTodo(String arguments) throws MiloException {
         if (arguments.isEmpty()) {
-            throw new MiloException("A todo needs a description. "
+            throw new MiloException("Tell me what the todo is. "
                     + "Try: todo borrow book");
         }
         return new Todo(arguments);
@@ -177,7 +177,7 @@ public class Parser {
     private static Task buildDeadline(String arguments) throws MiloException {
         int byIndex = indexOfMarker(arguments, BY_MARKER, 0);
         if (byIndex < 0) {
-            throw new MiloException("I need to know when that is due. "
+            throw new MiloException("When's that due? "
                     + "Add " + BY_MARKER + ", like: deadline return book "
                     + BY_MARKER + " Sunday");
         }
@@ -207,7 +207,7 @@ public class Parser {
     private static Task buildEvent(String arguments) throws MiloException {
         int fromIndex = indexOfMarker(arguments, FROM_MARKER, 0);
         if (fromIndex < 0) {
-            throw new MiloException("I need to know when that event starts. "
+            throw new MiloException("When does that event start? "
                     + "Add " + FROM_MARKER + ", like: event project meeting "
                     + FROM_MARKER + " Mon 2pm " + TO_MARKER + " 4pm");
         }
@@ -216,7 +216,7 @@ public class Parser {
         // picked up out of order.
         int toIndex = indexOfMarker(arguments, TO_MARKER, fromIndex + FROM_MARKER.length());
         if (toIndex < 0) {
-            throw new MiloException("I need to know when that event ends. "
+            throw new MiloException("And when does it end? "
                     + "Add " + TO_MARKER + " after " + FROM_MARKER
                     + ", like: event project meeting " + FROM_MARKER
                     + " Mon 2pm " + TO_MARKER + " 4pm");

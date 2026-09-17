@@ -22,15 +22,15 @@ public class UndoCommand extends Command {
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) throws MiloException {
         if (!tasks.restorePrevious()) {
-            throw new MiloException("There is nothing to undo yet. "
-                    + "I can only undo the last command that changed your list.");
+            throw new MiloException("Nothing to undo yet — I only remember "
+                    + "the last thing that changed your list.");
         }
 
         // The save file mirrors the list, so it has to follow the list back.
         storage.save(tasks.asArrayList());
 
         ui.showResponse(Stream.concat(
-                Stream.of("OK, I've undone the last change. Your list is now:"),
+                Stream.of("Rewound. Here's where things stand:"),
                 Arrays.stream(tasks.getDisplayLines()))
                 .toArray(String[]::new));
     }

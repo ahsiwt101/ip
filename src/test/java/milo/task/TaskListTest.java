@@ -101,7 +101,7 @@ class TaskListTest {
     void getDisplayLines_emptyList_returnsPlaceholderMessage() {
         TaskList tasks = new TaskList();
         assertArrayEquals(
-                new String[] {"There is nothing in your list yet."},
+                new String[] {"Your list is empty — nothing to chase yet."},
                 tasks.getDisplayLines());
     }
 
@@ -112,7 +112,7 @@ class TaskListTest {
         tasks.add(new Todo("return book"));
         assertArrayEquals(
                 new String[] {
-                    "Here are the tasks in your list:",
+                    "Here's everything on your list:",
                     "1.[T][ ] read book",
                     "2.[T][ ] return book"
                 },
@@ -161,7 +161,7 @@ class TaskListTest {
         TaskList tasks = new TaskList();
         tasks.add(new Todo("read book"));
         assertArrayEquals(
-                new String[] {"There are no matching tasks in your list."},
+                new String[] {"I had a good sniff around and found nothing matching."},
                 tasks.getMatchingDisplayLines("essay"));
     }
 
@@ -173,7 +173,7 @@ class TaskListTest {
         tasks.add(new Todo("return book"));
         assertArrayEquals(
                 new String[] {
-                    "Here are the matching tasks in your list:",
+                    "Here's what I sniffed out:",
                     "1.[T][ ] read book",
                     "2.[T][ ] return book"
                 },
@@ -185,7 +185,7 @@ class TaskListTest {
         TaskList tasks = new TaskList();
         tasks.add(new Todo("read Book"));
         assertArrayEquals(
-                new String[] {"There are no matching tasks in your list."},
+                new String[] {"I had a good sniff around and found nothing matching."},
                 tasks.getMatchingDisplayLines("book"));
     }
 

@@ -95,7 +95,7 @@ public class Storage {
             lines = Files.readAllLines(filePath);
         } catch (IOException e) {
             loadWarnings.add("I couldn't read " + filePath
-                    + ", so I'm starting with an empty list.");
+                    + ", so we're starting fresh.");
             return new ArrayList<>();
         }
 
@@ -112,8 +112,8 @@ public class Storage {
         // Whatever did not survive the pipeline was a line we could not read.
         int skipped = savedLines.size() - tasks.size();
         if (skipped > 0) {
-            loadWarnings.add("I skipped " + skipped + " line(s) in " + filePath
-                    + " that I couldn't understand. The rest of your list is intact.");
+            loadWarnings.add("I couldn't make sense of " + skipped + " line(s) in "
+                    + filePath + ", so I left them out. The rest of your list is intact.");
         }
         return tasks;
     }
@@ -142,8 +142,8 @@ public class Storage {
             assert lines.size() == tasks.size() : "every task should produce exactly one saved line";
             Files.write(filePath, lines);
         } catch (IOException e) {
-            throw new MiloException("I couldn't save your tasks to " + filePath
-                    + " (" + e.getMessage() + "). Your list is still fine in memory.");
+            throw new MiloException("I couldn't save to " + filePath
+                    + " (" + e.getMessage() + "). Your list is still safe with me for now.");
         }
     }
 
