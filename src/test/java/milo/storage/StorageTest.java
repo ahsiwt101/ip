@@ -28,6 +28,36 @@ class StorageTest {
     Path tempDir;
 
     @Test
+    void load_pathIsADirectory_warnsAndStartsEmpty() throws IOException {
+        Path asDirectory = tempDir.resolve("milo.txt");
+        Files.createDirectory(asDirectory);
+
+        Storage storage = new Storage(asDirectory.toString());
+        assertTrue(storage.load().isEmpty());
+        assertEquals(1, storage.getLoadWarnings().size());
+        assertTrue(storage.getLoadWarnings().get(0).contains("isn't a file I can read from"));
+    }
+
+    @Test
+    void load_missingFile_startsEmptyWithoutComplaining() {
+        Storage storage = new Storage(tempDir.resolve("never-written.txt").toString());
+        assertTrue(storage.load().isEmpty());
+        assertTrue(storage.getLoadWarnings().isEmpty());
+    }
+
+    @Test
+    void load_calledTwice_doesNotRepeatTheFirstLoadsWarnings() throws IOException {
+        Path file = tempDir.resolve("milo.txt");
+        Files.writeString(file, "this is not a task line\n");
+
+        Storage storage = new Storage(file.toString());
+        storage.load();
+        int afterFirst = storage.getLoadWarnings().size();
+        storage.load();
+        assertEquals(afterFirst, storage.getLoadWarnings().size());
+    }
+
+    @Test
     void load_missingFile_returnsEmptyListWithNoWarnings() {
         Storage storage = new Storage(tempDir.resolve("does-not-exist.txt").toString());
         ArrayList<Task> tasks = storage.load();

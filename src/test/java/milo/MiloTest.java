@@ -52,6 +52,58 @@ class MiloTest {
     }
 
     @Test
+    void isError_beforeAnyCommand_isFalse() {
+        assertFalse(newMilo().isError());
+    }
+
+    @Test
+    void isError_afterAValidCommand_isFalse() {
+        Milo milo = newMilo();
+        milo.getResponse("todo read book");
+        assertFalse(milo.isError());
+    }
+
+    @Test
+    void isError_afterAnInvalidCommand_isTrue() {
+        Milo milo = newMilo();
+        milo.getResponse("blah");
+        assertTrue(milo.isError());
+    }
+
+    @Test
+    void isError_clearsOnceAValidCommandRuns() {
+        Milo milo = newMilo();
+        milo.getResponse("blah");
+        milo.getResponse("todo read book");
+        assertFalse(milo.isError());
+    }
+
+    @Test
+    void getResponse_duplicateTask_isReportedAsAnError() {
+        Milo milo = newMilo();
+        milo.getResponse("todo read book");
+        String response = milo.getResponse("todo read book");
+        assertTrue(response.contains("already on your list"));
+        assertTrue(milo.isError());
+    }
+
+    @Test
+    void getResponse_undoAfterAdd_removesTheTask() {
+        Milo milo = newMilo();
+        milo.getResponse("todo read book");
+        milo.getResponse("undo");
+        assertTrue(milo.getResponse("list").contains("Your list is empty"));
+    }
+
+    @Test
+    void getResponse_blankInput_isReportedRatherThanCrashing() {
+        Milo milo = newMilo();
+        String response = milo.getResponse("   ");
+        assertTrue(milo.isError());
+        assertTrue(!response.isEmpty());
+    }
+
+    @Test
     void getWelcomeMessage_emptyList_isJustTheGreeting() {
         String welcome = newMilo().getWelcomeMessage();
         assertEquals("Woof! Milo here.\nWhat are we getting done today?", welcome);

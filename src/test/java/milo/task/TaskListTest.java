@@ -120,6 +120,45 @@ class TaskListTest {
     }
 
     @Test
+    void containsSameAs_identicalTask_isFound() {
+        TaskList tasks = new TaskList();
+        tasks.add(new Todo("read book"));
+        assertTrue(tasks.containsSameAs(new Todo("read book")));
+    }
+
+    @Test
+    void containsSameAs_differentDescription_isNotFound() {
+        TaskList tasks = new TaskList();
+        tasks.add(new Todo("read book"));
+        assertFalse(tasks.containsSameAs(new Todo("read books")));
+    }
+
+    @Test
+    void containsSameAs_emptyList_isNotFound() {
+        assertFalse(new TaskList().containsSameAs(new Todo("read book")));
+    }
+
+    @Test
+    void containsSameAs_ignoresWhetherTheTaskIsDone() throws MiloException {
+        // A task already ticked off is still the same task, so adding it
+        // again should still count as a duplicate.
+        TaskList tasks = new TaskList();
+        tasks.add(new Todo("read book"));
+        tasks.get(0).markAsDone();
+        assertTrue(tasks.containsSameAs(new Todo("read book")));
+    }
+
+    @Test
+    void containsSameAs_doesNotChangeTheStoredTask() throws MiloException {
+        TaskList tasks = new TaskList();
+        tasks.add(new Todo("read book"));
+        tasks.get(0).markAsDone();
+
+        tasks.containsSameAs(new Todo("read book"));
+        assertEquals("[T][X] read book", tasks.get(0).toString());
+    }
+
+    @Test
     void restorePrevious_noSnapshotTaken_returnsFalse() {
         assertFalse(new TaskList().restorePrevious());
     }

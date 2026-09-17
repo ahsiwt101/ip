@@ -58,6 +58,54 @@ class ParserTest {
     }
 
     @Test
+    void parse_descriptionContainingFieldSeparator_isRejected() {
+        // The save file separates fields with "|", so a description holding
+        // one is written back as extra fields and dropped on the next load.
+        assertThrows(MiloException.class, () -> Parser.parse("todo read | book"));
+        assertThrows(MiloException.class, () -> Parser.parse("deadline a | b /by 2019-10-15"));
+        assertThrows(MiloException.class, () -> Parser.parse("event a | b /from x /to y"));
+    }
+
+    @Test
+    void parse_eventDatesContainingFieldSeparator_areRejected() {
+        assertThrows(MiloException.class, () -> Parser.parse("event trip /from a | b /to y"));
+        assertThrows(MiloException.class, () -> Parser.parse("event trip /from x /to a | b"));
+    }
+
+    @Test
+    void parse_repeatedByMarker_isRejected() {
+        assertThrows(MiloException.class, () -> Parser.parse("deadline x /by 2019-10-15 /by 2019-11-01"));
+    }
+
+    @Test
+    void parse_repeatedEventMarkers_areRejected() {
+        assertThrows(MiloException.class, () -> Parser.parse("event x /from a /from b /to c"));
+        assertThrows(MiloException.class, () -> Parser.parse("event x /from a /to b /to c"));
+    }
+
+    @Test
+    void parse_eventEndingBeforeItStarts_isRejected() {
+        assertThrows(MiloException.class, () -> Parser.parse("event trip /from 2019-10-15 /to 2019-10-01"));
+    }
+
+    @Test
+    void parse_eventEndingWhenItStarts_isRejected() {
+        assertThrows(MiloException.class, () -> Parser.parse("event trip /from 2019-10-15 /to 2019-10-15"));
+    }
+
+    @Test
+    void parse_eventWithFreeTextTimes_isStillAccepted() throws MiloException {
+        // There is no way to order "Mon 2pm" against "4pm", so the ordering
+        // check has to stay out of the way of text like this.
+        assertInstanceOf(AddCommand.class, Parser.parse("event meeting /from Mon 2pm /to 4pm"));
+    }
+
+    @Test
+    void parse_eventInOrder_isAccepted() throws MiloException {
+        assertInstanceOf(AddCommand.class, Parser.parse("event trip /from 2019-10-01 /to 2019-10-15"));
+    }
+
+    @Test
     void parse_undo_returnsUndoCommand() throws MiloException {
         assertInstanceOf(UndoCommand.class, Parser.parse("undo"));
     }

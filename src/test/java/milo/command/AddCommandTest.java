@@ -2,6 +2,7 @@ package milo.command;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
@@ -54,6 +55,17 @@ class AddCommandTest {
 
         assertEquals(1, tasks.size());
         assertEquals("[T][ ] read book", tasks.get(0).toString());
+    }
+
+    @Test
+    void execute_taskAlreadyOnTheList_throwsAndLeavesTheListAlone() throws MiloException {
+        TaskList tasks = new TaskList();
+        Storage storage = new Storage(tempDir.resolve("milo.txt").toString());
+        new AddCommand(new Todo("read book")).execute(tasks, new Ui(), storage);
+
+        AddCommand duplicate = new AddCommand(new Todo("read book"));
+        assertThrows(MiloException.class, () -> duplicate.execute(tasks, new Ui(), storage));
+        assertEquals(1, tasks.size());
     }
 
     @Test
