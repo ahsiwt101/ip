@@ -172,6 +172,34 @@ public class TaskList {
     }
 
     /**
+     * Returns whether the list already holds a task that reads exactly like
+     * the given one. Tasks are compared by how they are displayed, which
+     * covers the type, the description and any dates, but deliberately not
+     * whether they are done: a task already ticked off is still the same task.
+     *
+     * @param candidate the task about to be added
+     * @return true if an identical task is already on the list
+     */
+    public boolean containsSameAs(Task candidate) {
+        String candidateText = describeIgnoringStatus(candidate);
+        return tasks.stream()
+                .anyMatch(task -> describeIgnoringStatus(task).equals(candidateText));
+    }
+
+    /**
+     * Renders a task the way it is displayed, but always as not done, so that
+     * two tasks can be compared on what they are rather than on their status.
+     *
+     * @param task the task to describe
+     * @return the task's text with its status box cleared
+     */
+    private static String describeIgnoringStatus(Task task) {
+        Task copy = task.copy();
+        copy.markAsNotDone();
+        return copy.toString();
+    }
+
+    /**
      * Remembers the tasks as they stand now, so that a command about to
      * change them can be undone. Replaces any earlier snapshot, so only the
      * most recent change can ever be undone.

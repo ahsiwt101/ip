@@ -44,6 +44,10 @@ public class AddCommand extends Command {
 
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) throws MiloException {
+        if (tasks.containsSameAs(task)) {
+            throw new MiloException("That's already on your list:\n  " + task);
+        }
+
         tasks.add(task);
         storage.save(tasks.asArrayList());
         ui.showResponse(

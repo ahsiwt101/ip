@@ -90,6 +90,21 @@ public class Storage {
             return new ArrayList<>();
         }
 
+        // Something is there, but it may not be something we can read. Both
+        // cases are reported rather than thrown, so a broken save location
+        // costs the user their history but not their session.
+        if (!Files.isRegularFile(filePath)) {
+            loadWarnings.add("There's something at " + filePath
+                    + ", but it isn't a file I can read from. We're starting fresh.");
+            return new ArrayList<>();
+        }
+
+        if (!Files.isReadable(filePath)) {
+            loadWarnings.add("I'm not allowed to read " + filePath
+                    + ". We're starting fresh, and I won't touch what's there.");
+            return new ArrayList<>();
+        }
+
         List<String> lines;
         try {
             lines = Files.readAllLines(filePath);

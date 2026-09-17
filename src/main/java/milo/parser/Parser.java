@@ -12,6 +12,7 @@ import milo.exception.MiloException;
 import milo.task.Deadline;
 import milo.task.Event;
 import milo.task.Task;
+import milo.task.TaskDate;
 import milo.task.Todo;
 
 /**
@@ -49,6 +50,12 @@ public class Parser {
 
     /** The command that adds a task spanning a start and an end date. */
     private static final String EVENT_COMMAND = "event";
+
+    /**
+     * The character the save file uses between fields. User text containing
+     * it cannot be stored, so it is rejected on the way in.
+     */
+    private static final String FIELD_SEPARATOR = "|";
 
     /** Separates a deadline's description from its due date. */
     private static final String BY_MARKER = "/by";
@@ -163,6 +170,7 @@ public class Parser {
             throw new MiloException("Tell me what the todo is. "
                     + "Try: todo borrow book");
         }
+        requireStorable(arguments, "a description");
         return new Todo(arguments);
     }
 
@@ -175,6 +183,8 @@ public class Parser {
      * @throws MiloException if the marker, the description or the date is missing
      */
     private static Task buildDeadline(String arguments) throws MiloException {
+        requireAtMostOneMarker(arguments, BY_MARKER);
+
         int byIndex = indexOfMarker(arguments, BY_MARKER, 0);
         if (byIndex < 0) {
             throw new MiloException("When's that due? "
@@ -193,6 +203,7 @@ public class Parser {
             throw new MiloException("Tell me what comes after " + BY_MARKER
                     + ", like: deadline return book " + BY_MARKER + " Sunday");
         }
+        requireStorable(description, "a description");
         return new Deadline(description, by);
     }
 
@@ -205,6 +216,9 @@ public class Parser {
      * @throws MiloException if a marker, the description or either date is missing
      */
     private static Task buildEvent(String arguments) throws MiloException {
+        requireAtMostOneMarker(arguments, FROM_MARKER);
+        requireAtMostOneMarker(arguments, TO_MARKER);
+
         int fromIndex = indexOfMarker(arguments, FROM_MARKER, 0);
         if (fromIndex < 0) {
             throw new MiloException("When does that event start? "
@@ -235,7 +249,78 @@ public class Parser {
                     + "Try: event project meeting " + FROM_MARKER + " Mon 2pm "
                     + TO_MARKER + " 4pm");
         }
+        requireStorable(description, "a description");
+        requireStorable(from, "a start");
+        requireStorable(to, "an end");
+        requireEndsAfterStart(from, to);
         return new Event(description, from, to);
+    }
+
+    /**
+     * Rejects text that could not be written to the save file and read back.
+     * Fields there are separated by {@value #FIELD_SEPARATOR}, so text
+     * carrying that character splits into the wrong number of fields on the
+     * way back in, and the task is dropped as unreadable. Catching it here
+     * means the user is told at once, rather than losing the task silently
+     * the next time Milo starts.
+     *
+     * @param text what the user typed
+     * @param what how to describe the field in the error, e.g. "a description"
+     * @throws MiloException if the text cannot be stored
+     */
+    private static void requireStorable(String text, String what) throws MiloException {
+        if (text.contains(FIELD_SEPARATOR)) {
+            throw new MiloException("I keep your tasks in a file that uses "
+                    + FIELD_SEPARATOR + " between fields, so I can't put one in "
+                    + what + ". Could you write it without the "
+                    + FIELD_SEPARATOR + "?");
+        }
+    }
+
+    /**
+     * Rejects a command that uses the same marker twice. Only the first is
+     * ever acted on, so a second one would otherwise be swallowed into the
+     * text around it and the command would quietly do something other than
+     * what was asked.
+     *
+     * @param arguments everything the user typed after the command word
+     * @param marker    the marker that may appear at most once
+     * @throws MiloException if the marker appears more than once
+     */
+    private static void requireAtMostOneMarker(String arguments, String marker)
+            throws MiloException {
+        int first = indexOfMarker(arguments, marker, 0);
+        if (first < 0) {
+            return;
+        }
+
+        if (indexOfMarker(arguments, marker, first + marker.length()) >= 0) {
+            throw new MiloException("You've given me " + marker + " more than once, "
+                    + "and I only know what to do with one of them.");
+        }
+    }
+
+    /**
+     * Rejects an event that ends before, or exactly when, it starts.
+     * Only checked when both ends are dates Milo can read: an event is free
+     * to say "Mon 2pm", and there is no way to order text like that.
+     *
+     * @param from when the event starts, as typed
+     * @param to   when the event ends, as typed
+     * @throws MiloException if both are dates and the end does not follow the start
+     */
+    private static void requireEndsAfterStart(String from, String to) throws MiloException {
+        var start = TaskDate.parse(from.trim());
+        var end = TaskDate.parse(to.trim());
+        if (start.isEmpty() || end.isEmpty()) {
+            return;
+        }
+
+        if (!end.get().value().isAfter(start.get().value())) {
+            throw new MiloException("That event ends before it starts. "
+                    + "Check the dates: " + FROM_MARKER + " " + from
+                    + " " + TO_MARKER + " " + to);
+        }
     }
 
     /**
