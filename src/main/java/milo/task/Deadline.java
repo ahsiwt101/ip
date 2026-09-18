@@ -8,7 +8,7 @@ import milo.exception.MiloException;
 
 /**
  * Represents a task that must be done before a specific date or time,
- * for example "submit report by 2019-10-15 1800".
+ * for example "submit report by 2026-10-15 1800".
  * <p>
  * The due date is held as a {@link LocalDateTime} rather than as text, so it
  * is a real point in time that could be compared or sorted, and so the format
@@ -16,11 +16,11 @@ import milo.exception.MiloException;
  * formats it can be typed in live in {@link TaskDate}.
  */
 public class Deadline extends Task {
-    /** How a date with no time is shown to the user, e.g. "Oct 15 2019". */
+    /** How a date with no time is shown to the user, e.g. "Oct 15 2026". */
     private static final DateTimeFormatter DISPLAY_DATE =
             DateTimeFormatter.ofPattern("MMM d yyyy", Locale.ENGLISH);
 
-    /** How a date with a time is shown, e.g. "Dec 2 2019, 6:00pm". */
+    /** How a date with a time is shown, e.g. "Dec 2 2026, 6:00pm". */
     private static final DateTimeFormatter DISPLAY_DATE_TIME =
             DateTimeFormatter.ofPattern("MMM d yyyy, h:mma", Locale.ENGLISH);
 
@@ -55,8 +55,8 @@ public class Deadline extends Task {
         String trimmed = by.trim();
         TaskDate.Parsed parsed = TaskDate.parse(trimmed).orElseThrow(() ->
                 new MiloException("I couldn't make sense of \"" + trimmed + "\" as a date. "
-                        + "Try 2019-10-15, or 2019-10-15 1800 to include a time "
-                        + "(2/12/2019 and 2/12/2019 1800 work too)."));
+                        + "Try 2026-10-15, or 2026-10-15 1800 to include a time "
+                        + "(2/12/2026 and 2/12/2026 1800 work too)."));
 
         this.by = parsed.value();
         this.hasTime = parsed.hasTime();
@@ -90,7 +90,7 @@ public class Deadline extends Task {
     /**
      * Returns the due date written the way it is shown to the user.
      *
-     * @return e.g. "Oct 15 2019", or "Dec 2 2019, 6:00pm" when a time was given
+     * @return e.g. "Oct 15 2026", or "Dec 2 2026, 6:00pm" when a time was given
      */
     private String getFormattedBy() {
         if (!hasTime) {
@@ -102,7 +102,7 @@ public class Deadline extends Task {
 
     /**
      * Returns the deadline tagged with its type and due date, for example
-     * {@code [D][ ] return book (by: Oct 15 2019)}.
+     * {@code [D][ ] return book (by: Oct 15 2026)}.
      */
     @Override
     public String toString() {
