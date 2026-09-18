@@ -93,7 +93,7 @@ public class MainWindow extends VBox {
      * @param dialogBox the dialog box to add
      */
     private void addDialog(DialogBox dialogBox) {
-        dialogBox.bindMaxWidthTo(dialogContainer.widthProperty());
+        dialogBox.bindMaxWidthTo(scrollPane.widthProperty());
         dialogContainer.getChildren().add(dialogBox);
     }
 }

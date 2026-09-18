@@ -28,6 +28,14 @@ public class DialogBox extends HBox {
     /** Radius of Milo's avatar, also half its fitted width and height. */
     private static final double AVATAR_RADIUS = 16.0;
 
+    /**
+     * Width taken up by things other than the bubble on a row: the avatar,
+     * the spacing beside it, the container's padding and the scrollbar.
+     * Held back from the width a bubble may use so none of them push it off
+     * the edge.
+     */
+    private static final double CHROME_WIDTH = 60.0;
+
     /** Share of the history's width a reply may occupy before wrapping. */
     private static final double MILO_WIDTH_FRACTION = 0.88;
 
@@ -96,11 +104,16 @@ public class DialogBox extends HBox {
      * message was created. Milo's replies are allowed more of the row than
      * the user's messages, since they are the ones that run long.
      *
-     * @param containerWidth the width to track, typically the dialog
-     *                        history's own width
+     * @param availableWidth the width to track, typically the scroll pane's
+     *                       own width, which the window fixes rather than the
+     *                       message content
      */
-    public void bindMaxWidthTo(ReadOnlyDoubleProperty containerWidth) {
-        dialog.maxWidthProperty().bind(containerWidth.multiply(widthFraction));
+    public void bindMaxWidthTo(ReadOnlyDoubleProperty availableWidth) {
+        // Subtract a margin for the avatar, the spacing beside it, the
+        // container's padding and the scrollbar, so a full-width bubble still
+        // stops short of the edge, then take this side's share of the rest.
+        dialog.maxWidthProperty().bind(
+                availableWidth.subtract(CHROME_WIDTH).multiply(widthFraction));
     }
 
     /**

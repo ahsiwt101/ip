@@ -7,8 +7,8 @@
 
 <fx:root type="HBox" xmlns:fx="http://javafx.com/fxml" alignment="TOP_RIGHT" spacing="8.0">
     <children>
-        <Label fx:id="dialog" text="Label" wrapText="true" minWidth="-Infinity"
-               styleClass="dialog-label" HBox.hgrow="ALWAYS" />
+        <Label fx:id="dialog" text="Label" wrapText="true"
+               styleClass="dialog-label" />
         <ImageView fx:id="displayPicture" fitHeight="32.0" fitWidth="32.0" preserveRatio="true" />
     </children>
     <padding>
