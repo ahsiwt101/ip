@@ -18,7 +18,7 @@ import java.util.Optional;
  */
 public final class TaskDate {
     // Input formats resolve STRICTly, so an impossible date such as
-    // 31/2/2019 is rejected instead of being quietly moved to Feb 28, which
+    // 31/2/2026 is rejected instead of being quietly moved to Feb 28, which
     // is what the default (lenient) resolver would do. Strict resolution
     // needs "uuuu" rather than "yyyy", because "yyyy" is year-of-era and
     // would additionally demand an era field.
@@ -61,8 +61,8 @@ public final class TaskDate {
      *         accepts
      */
     public static Optional<Parsed> parse(String text) {
-        // Formats carrying a time are tried first: "2019-10-15" would also
-        // match the front of "2019-10-15 1800" and silently lose the time.
+        // Formats carrying a time are tried first: "2026-10-15" would also
+        // match the front of "2026-10-15 1800" and silently lose the time.
         for (DateTimeFormatter format : DATE_TIME_FORMATS) {
             try {
                 return Optional.of(new Parsed(LocalDateTime.parse(text, format), true));

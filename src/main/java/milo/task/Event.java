@@ -2,7 +2,7 @@ package milo.task;
 
 /**
  * Represents a task that starts at a specific date/time and ends at another,
- * for example "team project meeting 2/10/2019 2-4pm".
+ * for example "team project meeting 2/10/2026 2-4pm".
  */
 public class Event extends Task {
     /** When the event starts. Stored as free text, not parsed as a date. */

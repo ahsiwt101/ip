@@ -189,7 +189,7 @@ public class Parser {
         if (byIndex < 0) {
             throw new MiloException("When's that due? "
                     + "Add " + BY_MARKER + ", like: deadline return book "
-                    + BY_MARKER + " Sunday");
+                    + BY_MARKER + " 2026-10-15");
         }
 
         String description = arguments.substring(0, byIndex).trim();
@@ -197,11 +197,11 @@ public class Parser {
         if (description.isEmpty()) {
             throw new MiloException("A deadline needs a description before "
                     + BY_MARKER + ". Try: deadline return book "
-                    + BY_MARKER + " Sunday");
+                    + BY_MARKER + " 2026-10-15");
         }
         if (by.isEmpty()) {
             throw new MiloException("Tell me what comes after " + BY_MARKER
-                    + ", like: deadline return book " + BY_MARKER + " Sunday");
+                    + ", like: deadline return book " + BY_MARKER + " 2026-10-15");
         }
         requireStorable(description, "a description");
         return new Deadline(description, by);
