@@ -11,6 +11,31 @@ a certain date, and **events** that run between a start and an end. Your list
 is saved automatically after every change, so it's still there the next time
 you open Milo.
 
+## Running Milo
+
+Milo needs **Java 25 or newer**. Check with `java -version`, then run it from a
+terminal:
+
+```
+java -jar milo.jar
+```
+
+### macOS: "milo.jar cannot be opened"
+
+The first time you open the JAR on a Mac, macOS may refuse it with a message
+like *"Apple could not verify milo.jar is free of malware"*. This is macOS
+Gatekeeper being cautious about any app downloaded from the internet — it is
+not a problem with Milo. To get past it, do any one of these:
+
+* Launch it from the terminal with `java -jar milo.jar` (the message usually
+  only appears when you double-click the file in Finder).
+* **Right-click** the JAR in Finder, choose **Open**, then **Open** again in
+  the dialog.
+* Go to **System Settings → Privacy & Security**, find the blocked file near
+  the bottom, and click **Open Anyway**.
+
+You only need to allow it once; after that it opens normally.
+
 ## Adding todos
 
 Adds a task with no date attached — something you need to do, but not by any
